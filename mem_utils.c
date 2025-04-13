@@ -1,0 +1,74 @@
+#include "minishell.h"
+
+void free_memory(t_data *data)
+{
+    t_alloc_list *next;
+
+    while(data->allocs)
+    {
+        next = data->allocs->next;
+        free(data->allocs->ptr);
+        free(data->allocs);
+        data->allocs = next;
+    }
+    data->tokens = NULL;
+    data->commands = NULL;
+}
+
+void ft_free(void *ptr, t_data *data)
+{
+    t_alloc_list *current;
+    t_alloc_list *previous;
+
+    current = data->allocs;
+    previous = NULL;
+
+    while(current)
+    {
+        if(current->ptr == ptr)
+        {
+            if(previous)
+            previous->next = current->next;
+            else
+            data->allocs = current->next;
+            free(current->ptr);
+            current->ptr = NULL;
+            free(current);
+            return ;
+        }
+        previous = current;
+        current = current->next;
+    }
+}
+
+void track_ptr(void *ptr, t_data *data)
+{
+    t_alloc_list *new_node;
+
+    new_node = (t_alloc_list *)malloc(sizeof(t_alloc_list));
+    if(!new_node)
+    {
+        free_memory(data);
+        free(ptr);
+        write(2, "minishell: cannot allocate memory\n", 34);
+        exit(1);
+    }
+    new_node->ptr = ptr;
+    new_node->next = data->allocs;
+    data->allocs = new_node;
+}
+
+void *ft_malloc(size_t size, t_data *data)
+{
+    void *ptr;
+
+    ptr = malloc(size);
+    if(!ptr)
+    {
+        free_memory(data);
+        write(2, "minishell: cannot allocate memory\n", 34);
+        exit(1);
+    }
+    track_ptr(ptr, data);
+    return (ptr);
+}
