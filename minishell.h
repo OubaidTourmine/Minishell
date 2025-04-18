@@ -57,9 +57,11 @@ typedef struct s_data
     t_alloc_list *allocs;
     t_token *tokens;
     t_command *commands;
+    int exit_status;
     int is_delimiter;
     int is_filename;
     int amb_redirect;
+    int hd_interrupted;
     char *redir_var_name;
 }t_data;
 
@@ -101,7 +103,7 @@ void	handle_single_quotes(t_data *data, char *line, int *i);
 void    handle_double_quotes(t_data *data, char *line, int *i);
 void	handle_var_expansion(t_data *data, char *line, int *i);
 
-void parse_commands(t_data *data);
+int parse_commands(t_data *data);
 
 void track_ptr(void *ptr, t_data *data);
 void free_memory(t_data *data);

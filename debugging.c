@@ -85,7 +85,6 @@ void print_command(t_command *cmd)
 {
     int i;
     
-    printf("\tCommand: \"%s\"\n", cmd->cmd ? cmd->cmd : "NULL");
     
     // Print arguments
     printf("\tArguments:\n");
@@ -129,7 +128,6 @@ void print_command_list(t_command *commands)
     {
         printf("Command %d:\n", cmd_num++);
         print_command(current);
-        printf("\n");
         current = current->next;
     }
     printf("=============\n");

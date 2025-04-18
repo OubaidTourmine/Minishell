@@ -1,5 +1,23 @@
 #include "../minishell.h"
 
+
+int check_heredoc_status(t_data *data, int status)
+{
+	if(WIFSIGNALED(status))
+	{
+		data->exit_status = WTERMSIG(status) + 128;
+		data->hd_interrupted = 1;
+		return 1;
+	}
+	else if(WIFEXITED(status))
+	{
+		data->exit_status = WEXITSTATUS(status);
+		return 0;
+	}
+	data->exit_status = 1;
+	return 0;
+}
+
 void read_heredoc_from_pipe(t_data *data, t_redirect *heredoc, int *fds)
 {
 	char buffer[4096];
@@ -76,7 +94,6 @@ int	handle_heredoc(t_data *data, t_redirect *heredoc)
 	int fds[2];
 	int status;
 
-	status = 1337;
 	if (pipe(fds) == -1)
 		return (perror("minishell: pipe"), 1);
 	if ((pid = fork()) == -1)
@@ -91,8 +108,9 @@ int	handle_heredoc(t_data *data, t_redirect *heredoc)
 	{
 		close(fds[1]);
 		waitpid(pid, &status, 0);
+		if(check_heredoc_status(data, status))
+		return 1;
 		read_heredoc_from_pipe(data, heredoc, fds);
-		printf("status: %i\n", WTERMSIG(status));
 	}
-	return (0);
+	return 0;
 }

@@ -1,12 +1,10 @@
 #include "minishell.h"
 
-void	get_input(void)
+void	get_input(t_data *data)
 {
 	char	*line;
-	t_data data;
 
-	ft_memset(&data, 0, sizeof(data));
-	track_ptr(line = readline("minishell: "), &data);
+	track_ptr(line = readline("minishell: "), data);
 	if (!line)
 	{
 	clear_history();
@@ -16,18 +14,20 @@ void	get_input(void)
 	add_history(line);
 	if (check_unclosed_quotes(line))
 	return ;
-	tokenize_input(line, &data);
-	if(check_syntax_error(&data) || check_amb_redirect(&data))
+	tokenize_input(line, data);
+	if(check_syntax_error(data) || check_amb_redirect(data) || parse_commands(data))
 	return;
-	parse_commands(&data);
-	free_memory(&data);
+	free_memory(data);
 }
 
 int	main(void)
 {
+	t_data data;
+
 	setup_signals();
+	ft_memset(&data, 0, sizeof(t_data));
 	while (1)
 	{
-		get_input();
+		get_input(&data);
 	}
 }
