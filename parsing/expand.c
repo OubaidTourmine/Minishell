@@ -18,16 +18,10 @@ char	*expand_variable(char *line, int *i, t_data *data)
 {
 	char	*var_name;
 	char	*var_value;
-	
+
 	var_name = get_var_name(line, i, data);
 	var_value = getenv(var_name);
-	if(data->is_filename)
-	{
-	if(data->redir_var_name)
-	ft_free(data->redir_var_name, data);
-	data->redir_var_name = var_name;
-	}
-	else
+
 	ft_free(var_name, data);
 	if (!var_value)
 		var_value = ft_strdup("", data);

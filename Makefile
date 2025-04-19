@@ -4,7 +4,7 @@ SRC = minishell.c \
       signals.c \
 	  mem_utils.c \
 	  parsing/syntax_errors.c \
-	  parsing/redirect_error.c \
+	  parsing/redirect_errors.c \
 	  parsing/expand.c \
 	  parsing/handle_words.c \
 	  parsing/handle_words_utils.c \
@@ -13,8 +13,12 @@ SRC = minishell.c \
 	  parsing/parse_commands.c \
 	  parsing/parse_commands_utils.c \
 	  parsing/heredoc.c \
+	  parsing/heredoc_utils.c \
+	  utils/ft_putstr_fd.c \
+	  utils/has_non_space_char.c \
 	  utils/add_char_to_str.c \
 	  utils/ft_strcmp.c \
+	  utils/ft_substr.c \
 	  utils/ft_isspace.c \
 	  utils/ft_strdup.c \
 	  utils/ft_strjoin.c \

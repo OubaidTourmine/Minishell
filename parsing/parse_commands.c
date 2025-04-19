@@ -96,6 +96,6 @@ int parse_commands(t_data *data)
         if(cmd_start && cmd_start->type == PIPE)
         cmd_start = cmd_start->next;
     }
-    print_command_list(data->commands);
+    // print_command_list(data->commands);
     return 0;
 }

@@ -52,7 +52,7 @@ void track_ptr(void *ptr, t_data *data)
     {
         free_memory(data);
         free(ptr);
-        write(2, "minishell: cannot allocate memory\n", 34);
+        ft_putstr_fd("minishell: cannot allocate memory\n", 2);
         exit(1);
     }
     new_node->ptr = ptr;
@@ -68,7 +68,7 @@ void *ft_malloc(size_t size, t_data *data)
     if(!ptr)
     {
         free_memory(data);
-        write(2, "minishell: cannot allocate memory\n", 34);
+        perror("minishell: malloc");
         exit(1);
     }
     track_ptr(ptr, data);
