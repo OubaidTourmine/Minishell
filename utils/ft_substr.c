@@ -12,20 +12,20 @@ void	ft_bzero(void *s, size_t n)
 	}
 }
 
-void	*ft_calloc(size_t count, size_t size, t_data *data)
+void	*ft_calloc(size_t count, size_t size)
 {
 	void	*s;
 
-	if (size && count > (size_t) - 1 / size)
+	if (size && count > (size_t)-1 / size)
 		return (NULL);
-	s = ft_malloc((count * size), data);
+	s = ft_malloc((count * size));
 	if (!s)
 		return (NULL);
 	ft_bzero(s, count * size);
 	return (s);
 }
 
-char	*ft_substr(char const *s, unsigned int start, size_t len, t_data *data)
+char	*ft_substr(char const *s, unsigned int start, size_t len)
 {
 	size_t	i;
 	char	*substr;
@@ -35,13 +35,13 @@ char	*ft_substr(char const *s, unsigned int start, size_t len, t_data *data)
 	i = 0;
 	if (start >= ft_strlen(s))
 	{
-		substr = ft_calloc(1, sizeof(char), data);
+		substr = ft_calloc(1, sizeof(char));
 		return (substr);
 	}
 	s += start;
 	if (ft_strlen((s)) < len)
 		len = ft_strlen(s);
-	substr = (char *)ft_malloc((len + 1) * sizeof(char), data);
+	substr = (char *)ft_malloc((len + 1) * sizeof(char));
 	if (!substr)
 		return (NULL);
 	while (s[i] && i < len)

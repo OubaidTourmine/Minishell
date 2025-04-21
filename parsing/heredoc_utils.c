@@ -1,6 +1,6 @@
 #include "../minishell.h"
 
-char	*generate_heredoc_filepath(t_data *data)
+char	*generate_heredoc_filepath(void)
 {
 	unsigned char	buffer[10];
 	int				fd;
@@ -15,7 +15,7 @@ char	*generate_heredoc_filepath(t_data *data)
 	read(fd, buffer, 10);
 	if (fd == -1)
 		return (perror("minishell: read"), NULL);
-	filepath = (char *)ft_malloc((sizeof(char) * 24), data);
+	filepath = (char *)ft_malloc((sizeof(char) * 24));
 	i = 0;
 	ft_strlcpy(filepath, "/tmp/heredoc_", 24);
 	while (i < 10)
@@ -27,44 +27,44 @@ char	*generate_heredoc_filepath(t_data *data)
 	close(fd);
 	return (filepath);
 }
-void print_heredoc_warning(char *delimiter)
+
+void	print_heredoc_warning(char *delimiter)
 {
-	ft_putstr_fd("minishell: warning: here-document delimited by end-of-file (wanted `",
-	2);
+	ft_putstr_fd("minishell: warning: here-document ", 2);
+	ft_putstr_fd("delimited by end-of-file (wanted `", 2);
 	ft_putstr_fd(delimiter, 2);
 	ft_putstr_fd("')\n", 2);
 }
 
-int	check_heredoc_exit_status(t_data *data, int status)
+int	check_hd_exit_status(t_data *data, int status)
 {
 	if (WIFSIGNALED(status))
 	{
-		if(WTERMSIG(status) == SIGINT)
-		write(1, "\n", 1);
+		if (WTERMSIG(status) == SIGINT)
+			write(1, "\n", 1);
 		data->exit_status = WTERMSIG(status) + 128;
 		return (1);
 	}
 	else if (WIFEXITED(status))
 	{
 		data->exit_status = WEXITSTATUS(status);
-		if(data->exit_status == 0)
-		return (0);
+		if (data->exit_status == 0)
+			return (0);
 		else
-		return 1;
+			return (1);
 	}
 	data->exit_status = 1;
 	return (1);
 }
 
-char	*process_heredoc_line(t_data *data, t_redirect *redirect, char *line,
-		char *content)
+char	*process_hd_line(t_data *data, t_token *hd, char *line, char *content)
 {
 	int	i;
 
-	line = add_char_to_str(line, '\n', data);
-	if (redirect->no_expansion)
+	line = add_char_to_str(line, '\n');
+	if (hd->next->no_expansion)
 	{
-		content = ft_strjoin_free(content, line, data);
+		content = ft_strjoin_free(content, line);
 		return (content);
 	}
 	else
@@ -72,13 +72,12 @@ char	*process_heredoc_line(t_data *data, t_redirect *redirect, char *line,
 		i = 0;
 		while (line[i])
 		{
-			if (line[i] == '$' && is_valid_var_start(line[i + 1]))
-				content = ft_strjoin_free(content, expand_variable(line, &i,
-							data), data);
+			if (line[i] == '$' && is_expandable(line[i + 1]))
+				content = ft_strjoin_free(content, expand(line, &i, data));
 			else
-				content = add_char_to_str(content, line[i++], data);
+				content = add_char_to_str(content, line[i++]);
 		}
 	}
-	ft_free(line, data);
+	ft_free(line);
 	return (content);
 }

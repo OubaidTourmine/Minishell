@@ -18,6 +18,7 @@ SRC = minishell.c \
 	  utils/has_non_space_char.c \
 	  utils/add_char_to_str.c \
 	  utils/ft_strcmp.c \
+	  utils/ft_itoa.c \
 	  utils/ft_substr.c \
 	  utils/ft_isspace.c \
 	  utils/ft_strdup.c \
@@ -35,16 +36,14 @@ OBJS = $(SRC:.c=.o)
 
 CC = cc
 
-CFLAGS = -Wall -Wextra -Werror -fsanitize=address
-
-LDFLAGS = -lreadline
+CFLAGS = -Wall -Wextra -Werror #-fsanitize=address
 
 RM = rm -f
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $(NAME) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(OBJS) -o $(NAME) -lreadline
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
