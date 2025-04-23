@@ -2,6 +2,12 @@ NAME = minishell
 
 SRC = minishell.c \
       signals.c \
+      execution.c \
+      export.c \
+      mini.c \
+      split.c \
+      redirection.c \
+      utils.c \
 	  mem_utils.c \
 	  parsing/syntax_errors.c \
 	  parsing/redirect_errors.c \
@@ -36,14 +42,16 @@ OBJS = $(SRC:.c=.o)
 
 CC = cc
 
-CFLAGS = -Wall -Wextra -Werror #-fsanitize=address
+CFLAGS = -Wall -Wextra -Werror
+
+LDFLAGS = -lreadline
 
 RM = rm -f
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $(NAME) -lreadline
+	$(CC) $(CFLAGS) $(OBJS) -o $(NAME) $(LDFLAGS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@

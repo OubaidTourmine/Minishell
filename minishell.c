@@ -29,18 +29,21 @@ void	get_input(t_data *data)
 		return ;
 	report_redirect_errors(data);
 	parse_commands(data);
-	print_command_list(data->commands);
+	// print_command_list(data->commands);
 }
 
-int	main(void)
+int	main(int ac, char **av, char **env)
 {
 	t_data	data;
 
+	(void)ac;
+	(void)av;
 	setup_signals();
 	ft_memset(&data, 0, sizeof(t_data));
 	while (1)
 	{
 		get_input(&data);
+		execution_pars(&data, env);
 		free_memory();
 		reset_data(&data);
 	}
