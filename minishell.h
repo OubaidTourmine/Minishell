@@ -68,6 +68,8 @@ typedef struct s_data
 	t_token				*tokens;
 	t_token				*last_token;
 	t_command			*commands;
+	int 				fd_in;
+	int 				fd_out;
 	char				*pwd;
 	char				*old_pwd;
 	char				**env;

@@ -42,6 +42,8 @@ int	main(int ac, char **av, char **env)
 	ft_memset(&data, 0, sizeof(t_data));
 	while (1)
 	{
+		data.fd_in = 0;
+		data.fd_out = 1;
 		get_input(&data);
 		execution_pars(&data, env);
 		free_memory();
