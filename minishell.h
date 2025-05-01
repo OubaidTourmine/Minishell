@@ -166,8 +166,19 @@ typedef struct s_inf
 	char				great;
 }						t_inf;
 
+typedef struct s_data_pipe
+{
+	size_t count;
+	size_t i;
+	int for_close;
+	int stored_fd_in;
+	int stored_fd_out;
+	int flag;
+	int *pid;
+	int p_fd[2];
+}						t_data_pipe;
 
-int						execution_pars(t_data *data, char **env);
+int						execution_pars(t_data *data);
 void					handle_redirections(t_data *data);
 int						get_env(char **env, t_data *data);
 char					*cmd_found(char **path);

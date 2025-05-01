@@ -6,93 +6,11 @@
 /*   By: outourmi <outourmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 17:16:10 by outourmi          #+#    #+#             */
-/*   Updated: 2025/06/19 19:35:33 by outourmi         ###   ########.fr       */
+/*   Updated: 2025/06/20 16:32:10 by outourmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-void	do_dup(int fd_in, int fd_out)
-{
-	if (fd_in != STDIN_FILENO)
-	{
-		dup2(fd_in, 0);
-		close(fd_in);
-	}
-	if (fd_out != STDOUT_FILENO)
-	{
-		dup2(fd_out, 1);
-		close(fd_out);
-	}
-}
-
-int	redirection(t_data *data)
-{
-	char	**args;
-	int		i;
-	char	**path;
-	char	*cmd_path;
-	int		pid;
-
-	i = 0;
-	path = get_envi(data, "PATH");
-	if (!path)
-		return (-1);
-	while (path[i])
-	{
-		path[i] = ft_strjoin_ft(path[i], "/");
-		i++;
-	}
-	i = 0;
-	while (path[i])
-	{
-		path[i] = ft_strjoin_ft(path[i], data->commands->args[0]);
-		i++;
-	}
-	cmd_path = cmd_found(path);
-	if (cmd_path == NULL)
-		printf("%s: command not found\n", data->commands->args[0]);
-	else
-	{
-		pid = fork();
-		if (pid == 0)
-		{
-			if (data->commands->args[1])
-			{
-				args = malloc(sizeof(char *) * 3);
-				if (!args)
-				{
-					perror("malloc failed");
-					exit(EXIT_FAILURE);
-				}
-				args[0] = data->commands->args[0];
-				args[1] = data->commands->args[1];
-				args[2] = NULL;
-			}
-			else
-			{
-				args = malloc(sizeof(char *) * 2);
-				if (!args)
-				{
-					perror("malloc failed");
-					exit(EXIT_FAILURE);
-				}
-				args[0] = data->commands->args[0];
-				args[1] = NULL;
-			}
-			do_dup(data->fd_in, data->fd_out);
-			execve(cmd_path, args, data->env);
-			perror("execve");
-			free(args);
-			exit(EXIT_FAILURE);
-		}
-		else if (pid > 0)
-			wait(NULL);
-		else
-			perror("fork");
-	}
-	return (0);
-}
 
 int	open_file(t_data *data, int flag)
 {
@@ -135,12 +53,4 @@ void	handle_redirections(t_data *data)
 		close_out = data->fd_out;
 		data->commands->redirects = data->commands->redirects->next;
 	}
-	redirection(data);
 }
-
-/*
-
-	create function "handle_cmd"
-	create function "handle_redirection"
-
-*/
