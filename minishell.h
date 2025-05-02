@@ -11,6 +11,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
+# include <limits.h>
 # include <sys/stat.h>
 # include <sys/types.h>
 # include <sys/wait.h>
@@ -178,6 +179,8 @@ typedef struct s_data_pipe
 	int p_fd[2];
 }						t_data_pipe;
 
+int						ft_get_exit_status(int status);
+void					do_dup(int fd_in, int fd_out);
 int						execution_pars(t_data *data);
 void					handle_redirections(t_data *data);
 int						get_env(char **env, t_data *data);

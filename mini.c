@@ -6,7 +6,7 @@
 /*   By: outourmi <outourmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 15:13:36 by outourmi          #+#    #+#             */
-/*   Updated: 2025/06/20 16:58:20 by outourmi         ###   ########.fr       */
+/*   Updated: 2025/06/24 16:07:03 by outourmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,29 +17,59 @@ int	check_x_permession(mode_t mode)
 	return (mode & S_IXUSR);
 }
 
-int	func_pwd(t_data *data)
+int func_pwd()
 {
-	if (!data->env)
-		printf("%s\n", data->pwd);
-	else
+    char cwd[4096];
+    
+    if (!getcwd(cwd, sizeof(cwd)))
+    {
+        perror("getcwd failed ");
+        return (1);
+    }
+    ft_putstr_fd(cwd, STDOUT_FILENO);
+    ft_putstr_fd("\n", STDOUT_FILENO);
+    return (0);
+}
+
+int ft_get_index_env(char **env, char *target)
+{
+	int ret = 0;
+
+	while ((env[ret]))
 	{
-		data->pwd = getenv("PWD");
-		if (!data->pwd)
-		{
-			perror("getenv failed\n");
-			return (1);
-		}
-		printf("%s\n", data->pwd);
+		if (ft_strncmp_ft(env[ret], target, ft_strlen(target)) == 0)
+			return (ret);
+		ret++;
+	}
+	return (-1);
+}
+
+int	func_env(t_data *data)
+{
+	int	i;
+
+	i = 0;
+	while (data->env[i])
+	{
+		// if (!data->env[i  +1])
+		// {
+		//     break ;
+		// }
+		printf("%s\n", data->env[i++]);
 	}
 	return (0);
 }
-
 int	func_cd(t_data *data)
 {
 	const char	*path;
 	struct stat	file_stat;
+	char *tmp;
 
-	if (!data->commands->args)
+	data->old_pwd = getcwd(NULL, 0);
+	tmp = data->old_pwd;
+	data->old_pwd = ft_strjoin_ft("OLDPWD=", tmp);
+	free(tmp);
+	if (!data->commands->args[1])
 	{
 		path = getenv("HOME");
 		if (!path)
@@ -52,7 +82,6 @@ int	func_cd(t_data *data)
 			perror("chdir failed\n");
 			return (1);
 		}
-		return (0);
 	}
 	else if (!ft_strcmp_ft(data->commands->args[1], "-"))
 	{
@@ -67,7 +96,6 @@ int	func_cd(t_data *data)
 			perror("chdir failed\n");
 			return (1);
 		}
-		return (0);
 	}
 	else
 	{
@@ -86,10 +114,17 @@ int	func_cd(t_data *data)
 				perror("chdir failed\n");
 				return (1);
 			}
-			return (0);
 		}
 	}
-	return (1);
+	data->pwd = getcwd(NULL, 0);
+	tmp = data->pwd;
+	data->pwd = ft_strjoin_ft("PWD=", tmp);
+	free(tmp);
+	int i = ft_get_index_env(data->env, "OLDPWD=");
+	data->env[i] = data->old_pwd;
+	i = ft_get_index_env(data->env, "PWD=");
+	data->env[i] = data->pwd;
+	return (0);
 }
 
 int	func_echo(t_data *data)
@@ -98,21 +133,6 @@ int	func_echo(t_data *data)
 	return (0);
 }
 
-int	func_env(t_data *data)
-{
-	int	i;
-
-	i = 0;
-	while (data->env[i])
-	{
-		// if (!data->env[i  +1])
-		// {
-		//     break ;
-		// }
-		printf("%s\n", data->env[i++]);
-	}
-	return (0);
-}
 
 int	func_exit(t_data *data)
 {
@@ -212,21 +232,56 @@ int	func_export(t_data *data)
 
 int	builtin(t_data *data)
 {
-	if (ft_strcmp_ft(data->commands->args[0], "echo") == 0)
-		func_echo(data);
+    pid_t	pid;
+    int		status;
+
+    if (ft_strcmp_ft(data->commands->args[0], "echo") == 0
+        || ft_strcmp_ft(data->commands->args[0], "pwd") == 0
+        || ft_strcmp_ft(data->commands->args[0], "env") == 0
+        || ft_strcmp_ft(data->commands->args[0], "export") == 0)
+    {
+        pid = fork();
+        if (pid == 0)
+        {
+            // Handle redirections
+            if (data->commands->redirects)
+                handle_redirections(data);
+
+            // Redirect stdin and stdout
+            do_dup(data->fd_in, data->fd_out);
+
+            // Execute the built-in command
+            if (ft_strcmp_ft(data->commands->args[0], "echo") == 0)
+                func_echo(data);
+            else if (ft_strcmp_ft(data->commands->args[0], "pwd") == 0)
+                func_pwd();
+            else if (ft_strcmp_ft(data->commands->args[0], "env") == 0)
+                func_env(data);
+            else if (ft_strcmp_ft(data->commands->args[0], "export") == 0)
+                func_export(data);
+
+            // Exit the child process
+            exit(0);
+        }
+        else if (pid < 0)
+        {
+            perror("fork failed");
+            return (1);
+        }
+        else
+        {
+            // Wait for the child process to finish
+            waitpid(pid, &status, 0);
+            return (ft_get_exit_status(status));
+        }
+    }
+    else if (ft_strcmp_ft(data->commands->args[0], "unset") == 0)
+        func_unset(data);
+    else if (ft_strcmp_ft(data->commands->args[0], "exit") == 0)
+        func_exit(data);
 	else if (ft_strcmp_ft(data->commands->args[0], "cd") == 0)
-		func_cd(data);
-	else if (ft_strcmp_ft(data->commands->args[0], "pwd") == 0)
-		func_pwd(data);
-	else if (ft_strcmp_ft(data->commands->args[0], "env") == 0)
-		func_env(data);
-	else if (ft_strcmp_ft(data->commands->args[0], "export") == 0)
-		func_export(data);
-	else if (ft_strcmp_ft(data->commands->args[0], "unset") == 0)
-		func_unset(data);
-	else if (ft_strcmp_ft(data->commands->args[0], "exit") == 0)
-		func_exit(data);
-	return (0);
+        func_cd(data);
+    return (0);
 }
 
 int	get_env(char **env, t_data *data)
@@ -473,7 +528,12 @@ int	handle_cmd(t_data *data, int flag)
 	int	status;
 
 	if (!builtin_checker(data))
-		return (builtin(data));
+	{
+		status = builtin(data);
+		if (flag)
+			exit(status);
+		return (status);
+	}
 	pid = fork();
 	if (pid == 0)
 	{
