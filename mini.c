@@ -127,22 +127,71 @@ int	func_cd(t_data *data)
 	return (0);
 }
 
-int	func_echo(t_data *data)
+int func_echo(t_data *data)
 {
-	printf("%s\n", data->commands->args[1]);
-	return (0);
+    int i;
+    int n_flag;
+    
+    i = 1;
+    n_flag = 0;
+    if (!data->commands->args[i])
+    {
+        write(STDOUT_FILENO, "\n", 1);
+        return (0);
+    }
+    while (data->commands->args[i] && data->commands->args[i][0] == '-')
+    {
+        int j = 1;
+        while (data->commands->args[i][j] == 'n')
+            j++;
+        if (data->commands->args[i][j] != '\0')  // If not all 'n', break
+            break;
+        if (j == 1)  // If just "-", break
+            break;
+        n_flag = 1;
+        i++;
+    }
+    while (data->commands->args[i])
+    {
+        ft_putstr_fd(data->commands->args[i], STDOUT_FILENO);
+        i++;
+        if(data->commands->args[i])
+           write(STDOUT_FILENO, " ", 1); 
+    }
+    if (n_flag == 0)
+        write(STDOUT_FILENO, "\n", 1);
+    return (0);
 }
 
 
-int	func_exit(t_data *data)
+int    func_exit(t_data *data)
 {
-	(void)data;
-	if (data->env)
-		free_array(data->env);
-	if (data->export)
-		free_array(data->export);
-	free(data);
-	exit(0);
+    int i;
+    int exit_code;
+
+    i = 0;
+    //check if numeric
+    while (data->commands->args[1][i])
+    {
+        if ((data->commands->args[1][i] < '0' || data->commands->args[1][i] > '9') && data->commands->args[1][i] != '+' && data->commands->args[1][i] != '-')
+            {
+                ft_putstr_fd("exit : ", STDOUT_FILENO);
+                ft_putstr_fd(data->commands->args[1], STDOUT_FILENO);
+                ft_putstr_fd(":numeric argument required\n", STDOUT_FILENO);
+                exit(255);
+            }
+        i++;
+    }
+    if (data->commands->args[1] && data->commands->args[2])
+    {
+        ft_putstr_fd("exit: too many arguments\n", STDOUT_FILENO);
+        return (EXIT_FAILURE);
+    }
+    if (data->commands->args[1])
+        exit_code = ft_atoi(data->commands->args[1]);
+    else
+        exit_code = 0;
+    exit (exit_code & 0xFF);
 }
 
 size_t	ft_strlen_exp(char *s)
@@ -163,40 +212,36 @@ size_t	ft_strlen_exp(char *s)
 
 int	func_unset(t_data *data)
 {
-	int		i;
-	int		var_len;
-	int		len_args;
-	char	*var_name;
-	int		j;
+    int		i;
+    int		var_len;
+    int		len_args;
+    char	*var_name;
+    int		j;
 
-	i = 0;
-	len_args = ft_strlen_ft(data->commands->args[0]);
-	while (data->env[i])
-	{
-		var_name = data->env[i];
-		var_len = ft_strlen_exp(var_name);
-		if (strncmp(var_name, data->commands->args[1], len_args) == 0
-			&& var_len == len_args)
-		{
-			// Free both arrays' entries at this position
-			free(data->env[i]);
-			free(data->export[i]);
-			// Shift all subsequent elements
-			j = i;
-			while (data->env[j + 1])
-			{
-				data->env[j] = data->env[j + 1];
-				data->export[j] = data->export[j + 1];
-				j++;
-			}
-			// Null-terminate both arrays at the new end
-			data->env[j] = NULL;
-			data->export[j] = NULL;
-			return (0);
-		}
-		i++;
-	}
-	return (0);
+
+    if (!data->commands->args[1])
+        return (0);
+    len_args = ft_strlen_ft(data->commands->args[1]);
+    i = 0;
+    while (data->env[i])
+    {
+        var_name = data->env[i];
+        var_len = ft_strlen_exp(var_name);
+        if (ft_strncmp_ft(var_name, data->commands->args[1], len_args) == 0
+            && var_len == len_args)
+        {
+            free(data->env[i]);
+            j = i;
+            while (data->env[j])
+            {
+                data->env[j] = data->env[j + 1];
+                j++;
+            }
+            continue;
+        }
+        i++;
+    }
+    return (0);
 }
 
 int	func_export(t_data *data)
@@ -207,7 +252,7 @@ int	func_export(t_data *data)
 	get_export(data);
 	if (!data->commands->args[1])
 	{
-		while (data->export[i + 1])
+		while (data->export[i])
 			printf("%s\n", data->export[i++]);
 	}
 	else
@@ -218,14 +263,6 @@ int	func_export(t_data *data)
 		// data->env[i] = ft_strjoin_ft("declare -x ", data->commands->args);
 		data->env[i + 1] = NULL;
 		i = 0;
-		// while (data->export[i])
-		// {
-		//     // if (!data->export[i  + 2])
-		//     // {
-		//     //     break ;
-		//     // }
-		//     // printf("%s\n", data->export[i++]);
-		// }
 	}
 	return (0);
 }
@@ -237,8 +274,7 @@ int	builtin(t_data *data)
 
     if (ft_strcmp_ft(data->commands->args[0], "echo") == 0
         || ft_strcmp_ft(data->commands->args[0], "pwd") == 0
-        || ft_strcmp_ft(data->commands->args[0], "env") == 0
-        || ft_strcmp_ft(data->commands->args[0], "export") == 0)
+        || ft_strcmp_ft(data->commands->args[0], "env") == 0)
     {
         pid = fork();
         if (pid == 0)
@@ -257,9 +293,6 @@ int	builtin(t_data *data)
                 func_pwd();
             else if (ft_strcmp_ft(data->commands->args[0], "env") == 0)
                 func_env(data);
-            else if (ft_strcmp_ft(data->commands->args[0], "export") == 0)
-                func_export(data);
-
             // Exit the child process
             exit(0);
         }
@@ -275,6 +308,8 @@ int	builtin(t_data *data)
             return (ft_get_exit_status(status));
         }
     }
+	else if (ft_strcmp_ft(data->commands->args[0], "export") == 0)
+		func_export(data);
     else if (ft_strcmp_ft(data->commands->args[0], "unset") == 0)
         func_unset(data);
     else if (ft_strcmp_ft(data->commands->args[0], "exit") == 0)
@@ -651,6 +686,8 @@ int	handle_pipe(t_data *data)
 
 int	execution_pars(t_data *data)
 {
+	if (!data->commands)
+        return (-1);
 	if (data->commands->next)
 		return (handle_pipe(data));
 	if (data->commands->redirects)

@@ -83,8 +83,8 @@ typedef struct s_data
 }						t_data;
 
 void					setup_signals(void);
-void 		handle_heredoc_sigint(int sig);
-
+void 					handle_heredoc_sigint(int sig);
+int						ft_atoi(char *nptr);
 void					ft_putstr_fd(char *s, int fd);
 char					*ft_strdup(const char *s1);
 char					*ft_strjoin_free(char *s1, char *s2);
