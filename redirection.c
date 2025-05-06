@@ -28,6 +28,43 @@ int	open_file(t_data *data, int flag)
 	return (file);
 }
 
+/*
+void	handle_redirections(t_data *data)
+{
+    t_redirect	*redir = data->commands->redirects;
+    int			close_in  = data->fd_in;
+    int			close_out = data->fd_out;
+
+    while (redir)
+    {
+        if (redir->type == OUTPUT)
+            data->fd_out = open_file(data, 1);
+        else if (redir->type == INPUT)
+            data->fd_in  = open_file(data, 2);
+        else if (redir->type == APPEND)
+            data->fd_out = open_file(data, 3);
+        else if (redir->type == HEREDOC)
+        {
+            int	pfd[2];
+            if (pipe(pfd) == -1)
+                perror("minishell: pipe");
+            write(pfd[1],
+                  redir->hd_content,
+                  ft_strlen(redir->hd_content));
+            close(pfd[1]);
+            data->fd_in = pfd[0];
+        }
+        if (close_in  != STDIN_FILENO  &&  close_in  != data->fd_in)
+            close(close_in);
+        if (close_out != STDOUT_FILENO &&  close_out != data->fd_out)
+            close(close_out);
+        close_in  = data->fd_in;
+        close_out = data->fd_out;
+        redir     = redir->next;
+    }
+}
+*/
+
 void	handle_redirections(t_data *data)
 {
 	int	close_in;
