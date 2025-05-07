@@ -6,7 +6,7 @@
 /*   By: outourmi <outourmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 15:13:36 by outourmi          #+#    #+#             */
-/*   Updated: 2025/06/24 16:07:03 by outourmi         ###   ########.fr       */
+/*   Updated: 2025/06/30 16:21:24 by outourmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -339,29 +339,22 @@ int	get_env(char **env, t_data *data)
 	return (0);
 }
 
-// int execute_pipeline_with_redirections(t_data *data)
-// {
-// 	// For each command in pipeline:
-// 	// Child process:
-// 	//   1. Set up pipe connections (stdin from previous, stdout to next)
-// 	//   2. Check current->redirects
-// 	//   3. Apply redirections (override pipe connections)
-// 	//   4. Close unused pipe fds
-// 	//   5. execve()
-// }
-
 int	builtin_checker(t_data *data)
 {
-	if (ft_strcmp_ft(data->commands->args[0], "echo") == 0
-		|| ft_strcmp_ft(data->commands->args[0], "cd") == 0
-		|| ft_strcmp_ft(data->commands->args[0], "pwd") == 0
-		|| ft_strcmp_ft(data->commands->args[0], "env") == 0
-		|| ft_strcmp_ft(data->commands->args[0], "export") == 0
-		|| ft_strcmp_ft(data->commands->args[0], "unset") == 0
-		|| ft_strcmp_ft(data->commands->args[0], "exit") == 0)
-		return (0);
-	else
-		return (1);
+    if (!data || !data->commands || !data->commands->args || !data->commands->args[0])
+    {
+        // ft_putstr_fd("Error: Invalid command structure\n", STDERR_FILENO);
+        return (1);
+    }
+    if (ft_strcmp_ft(data->commands->args[0], "echo") == 0
+        || ft_strcmp_ft(data->commands->args[0], "cd") == 0
+        || ft_strcmp_ft(data->commands->args[0], "pwd") == 0
+        || ft_strcmp_ft(data->commands->args[0], "env") == 0
+        || ft_strcmp_ft(data->commands->args[0], "export") == 0
+        || ft_strcmp_ft(data->commands->args[0], "unset") == 0
+        || ft_strcmp_ft(data->commands->args[0], "exit") == 0)
+        return (0);
+    return (1);
 }
 
 void	do_dup(int fd_in, int fd_out)
