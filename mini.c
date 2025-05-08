@@ -244,27 +244,91 @@ int	func_unset(t_data *data)
     return (0);
 }
 
+int is_valid_identifier(char *str)
+{
+    int i = 0;
+    
+    // Must start with letter or underscore
+    if (!str || (!isalpha(str[0]) && str[0] != '_'))
+        return (0);
+    
+    // Check rest of characters before '='
+    while (str[i] && str[i] != '=')
+    {
+        if (!isalnum(str[i]) && str[i] != '_')
+            return (0);
+        i++;
+    }
+    return (1);
+}
+
 int	func_export(t_data *data)
 {
-	int	i;
-
-	i = 0;
-	get_export(data);
-	if (!data->commands->args[1])
-	{
-		while (data->export[i])
-			printf("%s\n", data->export[i++]);
-	}
-	else
-	{
-		while (data->env[i])
-			i++;
-		data->env[i] = ft_strdup_ft(data->commands->args[1]);
-		// data->env[i] = ft_strjoin_ft("declare -x ", data->commands->args);
-		data->env[i + 1] = NULL;
-		i = 0;
-	}
-	return (0);
+    int	i;
+    int j = 1;
+    int existing_index;
+    
+    get_export(data);
+    if (!data->commands->args[1])
+    {
+        i = 0;
+        while (data->export[i])
+            printf("%s\n", data->export[i++]);
+    }
+    else
+    {
+        while(data->commands->args[j])
+        {
+            // Validate identifier
+            if (!is_valid_identifier(data->commands->args[j]))
+            {
+                ft_putstr_fd("bash: export: `", STDERR_FILENO);
+                ft_putstr_fd(data->commands->args[j], STDERR_FILENO);
+                ft_putstr_fd("': not a valid identifier\n", STDERR_FILENO);
+                j++;
+                continue;
+            }
+            
+            // Check if the argument contains '=' (has a value)
+            if (strchr(data->commands->args[j], '=') != NULL)
+            {
+                // Variable with value - normal export behavior
+                existing_index = ft_get_index_env(data->env, data->commands->args[j]);
+                if (existing_index != -1)
+                {
+                    // Variable exists, update it
+                    free(data->env[existing_index]);
+                    data->env[existing_index] = ft_strdup_ft(data->commands->args[j]);
+                }
+                else
+                {
+                    // Variable doesn't exist, add it
+                    i = 0;
+                    while (data->env[i])
+                        i++;
+                    data->env[i] = ft_strdup_ft(data->commands->args[j]);
+                    data->env[i + 1] = NULL;
+                }
+            }
+            else
+            {
+                // Variable without value - only export if it already exists
+                existing_index = ft_get_index_env(data->env, data->commands->args[j]);
+                if (existing_index == -1)
+                {
+                    // Variable doesn't exist, create it without value
+                    i = 0;
+                    while (data->env[i])
+                        i++;
+                    data->env[i] = ft_strdup_ft(data->commands->args[j]);
+                    data->env[i + 1] = NULL;
+                }
+                // If it exists, do nothing (keep existing value)
+            }
+            j++;
+        }
+    }
+    return (0);
 }
 
 int	builtin(t_data *data)
