@@ -16,9 +16,10 @@ char	*get_var_name(char *line, int *i)
 
 char	*expand_exit_status(int *i, t_data *data)
 {
+	(void)data;
 	char	*exit_status;
 
-	exit_status = ft_itoa(data->exit_status);
+	exit_status = ft_itoa(g_exit_status);
 	(*i) += 2;
 	return (exit_status);
 }

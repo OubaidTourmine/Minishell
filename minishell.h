@@ -17,6 +17,8 @@
 # include <sys/wait.h>
 # include <unistd.h>
 
+extern int g_exit_status;
+
 typedef enum e_type
 {
 	WORD,

@@ -12,6 +12,8 @@
 
 #include "minishell.h"
 
+int g_exit_status = 0;
+
 int	check_x_permession(mode_t mode)
 {
 	return (mode & S_IXUSR);
@@ -28,6 +30,7 @@ int func_pwd()
     }
     ft_putstr_fd(cwd, STDOUT_FILENO);
     ft_putstr_fd("\n", STDOUT_FILENO);
+	g_exit_status = 0;
     return (0);
 }
 
@@ -57,6 +60,7 @@ int	func_env(t_data *data)
 		// }
 		printf("%s\n", data->env[i++]);
 	}
+	g_exit_status = 0;
 	return (0);
 }
 int	func_cd(t_data *data)
@@ -75,11 +79,13 @@ int	func_cd(t_data *data)
 		if (!path)
 		{
 			perror("getenv failed\n");
+			g_exit_status = -1;
 			return (1);
 		}
 		if (chdir(path) == -1)
 		{
 			perror("chdir failed\n");
+			g_exit_status = -1;
 			return (1);
 		}
 	}
@@ -89,11 +95,13 @@ int	func_cd(t_data *data)
 		if (!path)
 		{
 			perror("getenv failed\n");
+			g_exit_status = -1;
 			return (1);
 		}
 		if (chdir(path) == -1)
 		{
 			perror("chdir failed\n");
+			g_exit_status = -1;
 			return (1);
 		}
 	}
@@ -105,6 +113,7 @@ int	func_cd(t_data *data)
 		if (stat(path, &file_stat) == -1)
 		{
 			perror("stat failed\n");
+			g_exit_status = -1;
 			return (1);
 		}
 		if (S_ISDIR(file_stat.st_mode) && check_x_permession(file_stat.st_mode))
@@ -112,6 +121,7 @@ int	func_cd(t_data *data)
 			if (chdir(path) == -1)
 			{
 				perror("chdir failed\n");
+				g_exit_status = -1;
 				return (1);
 			}
 		}
@@ -124,6 +134,7 @@ int	func_cd(t_data *data)
 	data->env[i] = data->old_pwd;
 	i = ft_get_index_env(data->env, "PWD=");
 	data->env[i] = data->pwd;
+	g_exit_status = 0;
 	return (0);
 }
 
@@ -159,8 +170,11 @@ int func_echo(t_data *data)
            write(STDOUT_FILENO, " ", 1); 
     }
     if (n_flag == 0)
+	{
         write(STDOUT_FILENO, "\n", 1);
-    return (0);
+	}
+	g_exit_status = 0;
+	return (0);
 }
 
 
@@ -241,6 +255,7 @@ int	func_unset(t_data *data)
         }
         i++;
     }
+	g_exit_status = 0;
     return (0);
 }
 
@@ -328,6 +343,7 @@ int	func_export(t_data *data)
             j++;
         }
     }
+	g_exit_status = 0;
     return (0);
 }
 
@@ -369,7 +385,8 @@ int	builtin(t_data *data)
         {
             // Wait for the child process to finish
             waitpid(pid, &status, 0);
-            return (ft_get_exit_status(status));
+            g_exit_status = ft_get_exit_status(status);
+            return (g_exit_status);
         }
     }
 	else if (ft_strcmp_ft(data->commands->args[0], "export") == 0)
@@ -616,29 +633,36 @@ int	ft_get_exit_status(int status)
 
 int	handle_cmd(t_data *data, int flag)
 {
-	int	pid;
-	int	status;
+    int	pid;
+    int	status;
 
-	if (!builtin_checker(data))
-	{
-		status = builtin(data);
-		if (flag)
-			exit(status);
-		return (status);
-	}
-	pid = fork();
-	if (pid == 0)
-	{
-		do_dup(data->fd_in, data->fd_out);
-		exec_cmd(data);
-	}
-	else if (pid < 0)
-		perror("fork failed");
-	else
-		waitpid(pid, &status, 0);
-	if (flag)
-		exit(ft_get_exit_status(status));
-	return (ft_get_exit_status(status));
+    if (!builtin_checker(data))
+    {
+        status = builtin(data);
+        g_exit_status = status;
+        if (flag)
+            exit(status);
+        return (status);
+    }
+    pid = fork();
+    if (pid == 0)
+    {
+        do_dup(data->fd_in, data->fd_out);
+        exec_cmd(data);
+    }
+    else if (pid < 0)
+    {
+        perror("fork failed");
+        g_exit_status = 1;
+    }
+    else
+    {
+        waitpid(pid, &status, 0);
+        g_exit_status = ft_get_exit_status(status);
+    }
+    if (flag)
+        exit(g_exit_status);
+    return (g_exit_status);
 }
 
 size_t	get_how_many_pipe(t_data *data)
@@ -722,33 +746,47 @@ int	routine_proccess(t_data *data, t_data_pipe *p_data)
 
 int	handle_pipe(t_data *data)
 {
-	t_data_pipe	p_data;
-	int			cap_ret;
-	int			status;
+    t_data_pipe	p_data;
+    int			cap_ret;
+    int			status;
 
-	pipe_data_init(&p_data, data);
-	while (p_data.i <= p_data.count)
-	{
-		cap_ret = routine_proccess(data, &p_data);
-		if (cap_ret == EXIT_FAILURE)
-			return (EXIT_FAILURE);
-	}
-	close(p_data.p_fd[0]);
-	p_data.i = -1;
-	p_data.count++;
-	while (++(p_data.i) < p_data.count)
-		waitpid(p_data.pid[p_data.i], &status, 0);
-	return (ft_get_exit_status(status));
+    pipe_data_init(&p_data, data);
+    while (p_data.i <= p_data.count)
+    {
+        cap_ret = routine_proccess(data, &p_data);
+        if (cap_ret == EXIT_FAILURE)
+        {
+            g_exit_status = EXIT_FAILURE;
+            return (EXIT_FAILURE);
+        }
+    }
+    close(p_data.p_fd[0]);
+    p_data.i = -1;
+    p_data.count++;
+    while (++(p_data.i) < p_data.count)
+        waitpid(p_data.pid[p_data.i], &status, 0);
+    g_exit_status = ft_get_exit_status(status);
+    return (g_exit_status);
 }
 
 int	execution_pars(t_data *data)
 {
-	if (!data->commands)
+    int result;
+    
+    if (!data->commands)
+    {
+        g_exit_status = 1;
         return (-1);
-	if (data->commands->next)
-		return (handle_pipe(data));
-	if (data->commands->redirects)
-		handle_redirections(data);
-	handle_cmd(data, 0);
-	return (0);
+    }
+    if (data->commands->next)
+    {
+        result = handle_pipe(data);
+        g_exit_status = result;
+        return (result);
+    }
+    if (data->commands->redirects)
+        handle_redirections(data);
+    result = handle_cmd(data, 0);
+    g_exit_status = result;
+    return (result);
 }
