@@ -34,17 +34,35 @@ int func_pwd()
     return (0);
 }
 
+size_t	ft_strlen_exp(char *s)
+{
+	size_t	i;
+
+	i = 0;
+	if (!s)
+	{
+		return (0);
+	}
+	while (s[i] && s[i] != '=')
+	{
+		i++;
+	}
+	return (i);
+}
+
 int ft_get_index_env(char **env, char *target)
 {
-	int ret = 0;
-
-	while ((env[ret]))
-	{
-		if (ft_strncmp_ft(env[ret], target, ft_strlen(target)) == 0)
-			return (ret);
-		ret++;
-	}
-	return (-1);
+    int ret = 0;
+    int target_len = ft_strlen_exp(target); // length before '='
+    
+    while (env[ret])
+    {
+        if (ft_strncmp_ft(env[ret], target, target_len) == 0 && 
+            (env[ret][target_len] == '=' || env[ret][target_len] == '\0'))
+            return (ret);
+        ret++;
+    }
+    return (-1);
 }
 
 int	func_env(t_data *data)
@@ -206,22 +224,6 @@ int    func_exit(t_data *data)
     else
         exit_code = 0;
     exit (exit_code & 0xFF);
-}
-
-size_t	ft_strlen_exp(char *s)
-{
-	size_t	i;
-
-	i = 0;
-	if (!s)
-	{
-		return (0);
-	}
-	while (s[i] && s[i] != '=')
-	{
-		i++;
-	}
-	return (i);
 }
 
 int	func_unset(t_data *data)
