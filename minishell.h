@@ -108,7 +108,8 @@ void					skip_spaces(char *line, int *i);
 int						check_leading_pipe(char *line, int *i);
 int						check_syntax_errors(t_token *token);
 int						check_consecutive_operators(t_token *token);
-
+int ft_get_index_env(char **env, char *target);
+size_t	ft_strlen_exp(char *s);
 int						tokenize_input(char *line, t_data *data);
 t_token	*create_new_token(t_type type, char *content);
 void					add_token_to_list(t_data *data, t_type type,
