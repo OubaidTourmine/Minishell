@@ -3,6 +3,7 @@
 void free_memory(t_data *data)
 {
     t_alloc_list *next;
+    int saved_exit_status;
 
     while(data->allocs)
     {
@@ -11,8 +12,9 @@ void free_memory(t_data *data)
         free(data->allocs);
         data->allocs = next;
     }
-    data->tokens = NULL;
-    data->commands = NULL;
+    saved_exit_status = data->exit_status;
+    ft_memset(data, 0, sizeof(t_data));
+    data->exit_status = saved_exit_status;
 }
 
 void ft_free(void *ptr, t_data *data)
