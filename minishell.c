@@ -3,7 +3,6 @@
 void	get_input(t_data *data)
 {
 	char	*line;
-
 	track_ptr(line = readline("minishell: "), data);
 	if (!line)
 	{
@@ -12,10 +11,10 @@ void	get_input(t_data *data)
 	}
 	else if(line[0])
 	add_history(line);
-	if (check_unclosed_quotes(line))
+	if (check_unclosed_quotes(line, data))
 	return ;
 	tokenize_input(line, data);
-	if(check_syntax_error(data) || check_amb_redirect(data) || parse_commands(data))
+	if(check_syntax_errors(data) || check_redirect_errors(data) || parse_commands(data))
 	return;
 	free_memory(data);
 }
@@ -27,7 +26,8 @@ int	main(void)
 	setup_signals();
 	ft_memset(&data, 0, sizeof(t_data));
 	while (1)
-	{
+	{	
+		
 		get_input(&data);
 	}
 }

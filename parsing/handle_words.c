@@ -63,8 +63,7 @@ void	handle_var_expansion(t_data *data, char *line, int *i)
 	word = NULL;
 	var_value = expand_variable(line, i, data);
 	check_lead_space(data, var_value);
-	if (skip_spaces(var_value, &j) && data->is_filename && !var_value[j])
-		data->amb_redirect = 1;
+	skip_spaces(var_value, &j);
 	while (var_value[j])
 	{
 		if (ft_isspace(var_value[j]))

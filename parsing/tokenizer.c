@@ -1,9 +1,12 @@
 #include "../minishell.h"
 
-
-
 void	tokenize_words(t_data *data, char *line, int *i)
 {
+	t_token *redir_token;
+	int start_index;
+
+	redir_token = data->last_token;
+	start_index = *i;
 	add_token_to_list(data, WORD, NULL);
 	while (line[*i] && !ft_isspace(line[*i]) && line[*i] != '|'
 		&& line[*i] != '<' && line[*i] != '>')
@@ -13,17 +16,13 @@ void	tokenize_words(t_data *data, char *line, int *i)
 		else if (line[*i] == '"')
 			handle_double_quotes(data, line, i);
 		else if (line[*i] == '$' && is_valid_var_start(line[*i + 1]) && !data->is_delimiter)
-		{
 			handle_var_expansion(data, line, i);
-			if(data->amb_redirect)
-			return ;
-			else if(data->redir_var_name)
-			ft_free(data->redir_var_name, data);
-		}
 		else if (line[*i])
 			handle_regular_word(data, line, i);
 	}
 	remove_empty_token(data);
+	if(data->is_filename && (!redir_token->next || redir_token->next->next))
+	mark_amb_redirect(data, line + start_index, redir_token);
 	set_flags(data, 0, 0);
 }
 
@@ -77,9 +76,12 @@ void	tokenize_input(char *line, t_data *data)
 		else if (line[i] == '<' || line[i] == '>')
 			tokenize_redirections(data, line, &i);
 		else if (line[i])
+		{
 			tokenize_words(data, line, &i);
-		else
-			break ;
+			if(data->stop_tokenization)
+			return ;
+		}
+		
 	}
 	ft_free(line_start, data);
 	// print_tokens(data->tokens);

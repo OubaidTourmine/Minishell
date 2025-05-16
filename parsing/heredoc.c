@@ -1,116 +1,82 @@
 #include "../minishell.h"
 
 
-int check_heredoc_status(t_data *data, int status)
+int	read_hd_content_from_file(t_data *data, t_redirect *heredoc, char *filepath)
 {
-	if(WIFSIGNALED(status))
-	{
-		data->exit_status = WTERMSIG(status) + 128;
-		data->hd_interrupted = 1;
-		return 1;
-	}
-	else if(WIFEXITED(status))
-	{
-		data->exit_status = WEXITSTATUS(status);
-		return 0;
-	}
-	data->exit_status = 1;
-	return 0;
-}
+	char	buffer[4096];
+	char	*tmp;
+	int		bytesread;
+	int		fd;
 
-void read_heredoc_from_pipe(t_data *data, t_redirect *heredoc, int *fds)
-{
-	char buffer[4096];
-	char *tmp;
-	int bytesread;
-
+	fd = open(filepath, O_RDONLY, 0600);
+	if (fd == -1)
+		return (perror("minishell: open"), 1);
 	heredoc->hd_content = ft_strdup("", data);
-	while((bytesread = read(fds[0], buffer, 4095)) > 0)
+	while ((bytesread = read(fd, buffer, 4095)) > 0)
 	{
 		buffer[bytesread] = '\0';
 		tmp = heredoc->hd_content;
 		heredoc->hd_content = ft_strjoin(heredoc->hd_content, buffer, data);
 		ft_free(tmp, data);
 	}
-	close(fds[0]);
+	close(fd);
+	unlink(filepath);
+	return (0);
 }
 
-char *process_heredoc_line(t_data *data, t_redirect *redirect, char *line, char *content)
-{
-    int i;
 
-    line = add_char_to_str(line, '\n', data);
-    if (redirect->no_expansion)
-    {
-    content = ft_strjoin_free(content, line, data);
-    return content;
-    }
-    else
-    {
-        i = 0;
-        while(line[i])
-        {
-            if (line[i] == '$' && is_valid_var_start(line[i + 1]))
-            content = ft_strjoin_free(content,
-            expand_variable(line, &i, data), data);
-            else
-            content = add_char_to_str(content, line[i++], data);
-        }
-    }
-    ft_free(line, data);
-    return content;
-}
-
-void	read_heredoc(t_data *data, t_redirect *heredoc, int *fds)
+int	read_heredoc_input(t_data *data, t_redirect *heredoc, char *filepath)
 {
 	char	*line;
 	char	*content;
+	int		fd;
 
+	fd = open(filepath, O_WRONLY | O_CREAT, 0600);
+	if (fd == -1)
+		return (perror("minishell: open"), 1);
 	content = ft_strdup("", data);
 	while (1)
 	{
 		track_ptr(line = readline("> "), data);
 		if (!line)
 		{
-			write(2,
-				"minishell: warning: here-document delimited by end-of-file (wanted `",
-				68);
-			write(2, heredoc->target, ft_strlen(heredoc->target));
-			write(2, "')\n", 3);
+			print_heredoc_warning(heredoc->target);
 			break ;
 		}
 		if (!ft_strcmp(heredoc->target, line))
-		break ;
+			break ;
 		content = process_heredoc_line(data, heredoc, line, content);
 	}
-	write(fds[1], content, ft_strlen(content));
-	close(fds[1]);
-    exit(0);
+	ft_putstr_fd(content, fd);
+	close(fd);
+	return (0);
 }
 
 int	handle_heredoc(t_data *data, t_redirect *heredoc)
 {
 	pid_t pid;
-	int fds[2];
 	int status;
+	char *filepath;
+	void (*saved_sig_handler)(int);
+	
 
-	if (pipe(fds) == -1)
-		return (perror("minishell: pipe"), 1);
+	filepath = generate_heredoc_filepath(data);
 	if ((pid = fork()) == -1)
 		return (perror("minishell: fork"), 1);
+	saved_sig_handler = signal(SIGINT, SIG_IGN);
 	if (pid == 0)
-    {
-        close(fds[0]);
-        signal(SIGINT, SIG_DFL);
-		read_heredoc(data, heredoc, fds);
-    }
-	else
-	{
-		close(fds[1]);
-		waitpid(pid, &status, 0);
-		if(check_heredoc_status(data, status))
-		return 1;
-		read_heredoc_from_pipe(data, heredoc, fds);
+	{	
+		signal(SIGINT, SIG_DFL);
+		if(read_heredoc_input(data, heredoc, filepath))
+		exit(1);
+		exit(0);
 	}
-	return 0;
+	else
+	{	
+		waitpid(pid, &status, 0);
+		signal(SIGINT, saved_sig_handler);
+		if (check_heredoc_exit_status(data, status) || read_hd_content_from_file(data, heredoc, filepath))
+		return(1);
+	}
+	return (0);
 }

@@ -1,6 +1,6 @@
 #include "../minishell.h"
 
-int	check_unclosed_quotes(char *line)
+int	check_unclosed_quotes(char *line, t_data *data)
 {
 	int		i;
 	char	quotes;
@@ -16,9 +16,8 @@ int	check_unclosed_quotes(char *line)
 				i++;
 			if (!line[i])
 			{
-				free(line);
-				write(2, "minishell: syntax error: unexpected end of file\n",
-					48);
+				ft_free(line, data);
+				ft_putstr_fd("minishell: syntax error: unexpected end of file\n", 2);
 				return (1);
 			}
 		}
@@ -31,24 +30,24 @@ int check_pipe_syntax(t_token *token)
 	
 	if((token->type == PIPE) && (!token->next || token->next->type == PIPE))
 	{
-	write(2, "minishell: syntax error near unexpected token `|'\n", 51);
+	ft_putstr_fd("minishell: syntax error near unexpected token `|'\n", 2);
 	return 1;
 	}
 	return 0;
 }
 void print_redirection_error(t_type type)
 {
-	write(2, "minishell: syntax error near unexpected token ", 46);
+	ft_putstr_fd("minishell: syntax error near unexpected token ", 2);
 	if(type == PIPE)
-	write(2, "`|'\n", 4);
+	ft_putstr_fd("`|'\n", 2);
 	else if(type == INPUT)
-	write(2, "`<'\n", 4);
+	ft_putstr_fd("`<'\n", 2);
 	else if(type == OUTPUT)
-	write(2, "`>'\n", 4);
+	ft_putstr_fd("`>'\n", 2);
 	else if(type == HEREDOC)
-	write(2, "`<<'\n", 5);
+	ft_putstr_fd("`<<'\n", 2);
 	else if(type == APPEND)
-	write(2, "`>>'\n", 5);
+	ft_putstr_fd("`>>'\n", 2);
 }
 int check_redirection_syntax(t_token *token)
 {
@@ -56,9 +55,11 @@ int check_redirection_syntax(t_token *token)
 	if(token->type == INPUT || token->type == OUTPUT ||
 	token->type == HEREDOC || token->type == APPEND)
 		{
+			if(token->is_amb_redirect)
+			return 0;
 			if(!token->next)
 			{
-				write(2, "minishell: syntax error near unexpected token `newline'\n", 56);
+				ft_putstr_fd("minishell: syntax error near unexpected token `newline'\n", 2);
 				return 1;
 			}
 			else if(token->next->type != WORD)
@@ -70,14 +71,14 @@ int check_redirection_syntax(t_token *token)
 	return 0;
 }
 
-int check_syntax_error(t_data *data)
+int check_syntax_errors(t_data *data)
 {
 	t_token *tokens;
 
 	tokens = data->tokens;
 	if(tokens && tokens->type == PIPE)
 	{
-	write(2, "minishell: syntax error near unexpected token `|'\n", 51);
+	ft_putstr_fd("minishell: syntax error near unexpected token `|'\n", 2);
 	free_memory(data);
 	return 1;
 	}
