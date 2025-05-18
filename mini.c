@@ -199,7 +199,7 @@ int func_echo(t_data *data)
 int    func_exit(t_data *data)
 {
     int i;
-    int exit_code;
+    int g_exit_status;
 
     i = 0;
     //check if numeric
@@ -220,10 +220,10 @@ int    func_exit(t_data *data)
         return (EXIT_FAILURE);
     }
     if (data->commands->args[1])
-        exit_code = ft_atoi(data->commands->args[1]);
+        g_exit_status = ft_atoi(data->commands->args[1]);
     else
-        exit_code = 0;
-    exit (exit_code & 0xFF);
+        g_exit_status = 0;
+    exit (g_exit_status);
 }
 
 int	func_unset(t_data *data)
