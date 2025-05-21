@@ -201,29 +201,35 @@ int    func_exit(t_data *data)
     int i;
     int g_exit_status;
 
-    i = 0;
-    //check if numeric
-    while (data->commands->args[1][i])
-    {
-        if ((data->commands->args[1][i] < '0' || data->commands->args[1][i] > '9') && data->commands->args[1][i] != '+' && data->commands->args[1][i] != '-')
-            {
-                ft_putstr_fd("exit : ", STDOUT_FILENO);
-                ft_putstr_fd(data->commands->args[1], STDOUT_FILENO);
-                ft_putstr_fd(":numeric argument required\n", STDOUT_FILENO);
-                exit(255);
-            }
-        i++;
-    }
+    // Check if there are too many arguments first
     if (data->commands->args[1] && data->commands->args[2])
     {
         ft_putstr_fd("exit: too many arguments\n", STDOUT_FILENO);
         return (EXIT_FAILURE);
     }
+
+    // Only check numeric if args[1] exists
     if (data->commands->args[1])
+    {
+        i = 0;
+        //check if numeric
+        while (data->commands->args[1][i])
+        {
+            if ((data->commands->args[1][i] < '0' || data->commands->args[1][i] > '9') && data->commands->args[1][i] != '+' && data->commands->args[1][i] != '-')
+                {
+                    ft_putstr_fd("exit : ", STDOUT_FILENO);
+                    ft_putstr_fd(data->commands->args[1], STDOUT_FILENO);
+                    ft_putstr_fd(":numeric argument required\n", STDOUT_FILENO);
+                    exit(255);
+                }
+            i++;
+        }
         g_exit_status = ft_atoi(data->commands->args[1]);
+    }
     else
         g_exit_status = 0;
-    exit (g_exit_status);
+    
+    exit(g_exit_status);
 }
 
 int	func_unset(t_data *data)
