@@ -1,6 +1,6 @@
 #include "../minishell.h"
 
-void set_flags(t_data *data, int delimiter, int filename)
+void	set_flags(t_data *data, int delimiter, int filename)
 {
 	data->is_delimiter = delimiter;
 	data->is_filename = filename;
@@ -18,6 +18,12 @@ void	add_token_to_list(t_data *data, t_type type, char *content)
 		return ;
 	}
 	data->last_token->next = new_token;
+	if(!data->found_syntax_error)
+	{
+	data->last_token->has_syntax_error = check_consecutive_operators(data->last_token);
+	if(data->last_token->has_syntax_error)
+	data->found_syntax_error = 1;
+	}
 	data->last_token = new_token;
 }
 

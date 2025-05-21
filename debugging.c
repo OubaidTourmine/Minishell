@@ -55,10 +55,7 @@ void print_redirection(t_redirect *redirect)
     print_redirection_type(redirect->type);
     printf(" → \"%s\"\n", redirect->target ? redirect->target : "NULL");
     if(redirect->type == HEREDOC)
-    {
-    printf("\t\tSuppress Expansion: %s\n", redirect->no_expansion ? "Enabled" : "Disabled");
     printf("Heredoc content:\n%s", redirect->hd_content);
-    }
 }
 
 // Print all redirections for a command
@@ -87,6 +84,10 @@ void print_command(t_command *cmd)
     
     
     // Print arguments
+    if((cmd->has_invalid_redirect))
+    printf("This command has redirect error!\n");
+    else
+    {
     printf("\tArguments:\n");
     if (!cmd->args)
     {
@@ -105,6 +106,8 @@ void print_command(t_command *cmd)
     // Print redirections
     printf("\tRedirections:\n");
     print_redirections(cmd->redirects);
+    }
+   
 }
 
 // Print the entire command list
