@@ -12,9 +12,8 @@ char	*generate_heredoc_filepath(void)
 	fd = open("/dev/urandom", O_RDONLY);
 	if (fd == -1)
 		return (perror("minishell: open"), NULL);
-	read(fd, buffer, 10);
-	if (fd == -1)
-		return (perror("minishell: read"), NULL);
+	if (read(fd, buffer, 10) == -1)
+		return (close(fd), perror("minishell: read"), NULL);
 	filepath = (char *)ft_malloc((sizeof(char) * 24));
 	i = 0;
 	ft_strlcpy(filepath, "/tmp/heredoc_", 24);
@@ -36,24 +35,25 @@ void	print_heredoc_warning(char *delimiter)
 	ft_putstr_fd("')\n", 2);
 }
 
-int	check_hd_exit_status(t_data *data, int status)
+int	check_hd_exit_status(int status)
 {
 	if (WIFSIGNALED(status))
 	{
-		if (WTERMSIG(status) == SIGINT)
-			write(1, "\n", 1);
-		data->exit_status = WTERMSIG(status) + 128;
+		printf("dkhl hna");
+		// if (WTERMSIG(status) == SIGINT)
+		// 	write(1, "\n", 1);
+		g_exit_status = WTERMSIG(status) + 128;
 		return (1);
 	}
 	else if (WIFEXITED(status))
 	{
-		data->exit_status = WEXITSTATUS(status);
-		if (data->exit_status == 0)
+		g_exit_status = WEXITSTATUS(status);
+		if (g_exit_status == 0)
 			return (0);
 		else
 			return (1);
 	}
-	data->exit_status = 1;
+	g_exit_status = 1;
 	return (1);
 }
 

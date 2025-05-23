@@ -1,10 +1,17 @@
 #include "minishell.h"
 
-void handle_heredoc_sigint(int sig)
+void handle_child_sigint(int sig)
 {	
 	(void)sig;
 	free_memory();
 	exit(130);
+}
+
+void handle_child_sigquit(int sig)
+{
+	(void)sig;
+	free_memory();
+	exit(131);
 }
 
 void	handle_sigint(int sig)

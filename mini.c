@@ -6,32 +6,32 @@
 /*   By: outourmi <outourmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 15:13:36 by outourmi          #+#    #+#             */
-/*   Updated: 2025/06/30 16:21:24 by outourmi         ###   ########.fr       */
+/*   Updated: 2025/07/09 17:01:19 by outourmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int g_exit_status = 0;
+int		g_exit_status = 0;
 
 int	check_x_permession(mode_t mode)
 {
 	return (mode & S_IXUSR);
 }
 
-int func_pwd()
+int	func_pwd(void)
 {
-    char cwd[4096];
-    
-    if (!getcwd(cwd, sizeof(cwd)))
-    {
-        perror("getcwd failed ");
-        return (1);
-    }
-    ft_putstr_fd(cwd, STDOUT_FILENO);
-    ft_putstr_fd("\n", STDOUT_FILENO);
+	char	cwd[4096];
+
+	if (!getcwd(cwd, sizeof(cwd)))
+	{
+		perror("getcwd failed ");
+		return (1);
+	}
+	ft_putstr_fd(cwd, STDOUT_FILENO);
+	ft_putstr_fd("\n", STDOUT_FILENO);
 	g_exit_status = 0;
-    return (0);
+	return (0);
 }
 
 size_t	ft_strlen_exp(char *s)
@@ -50,19 +50,20 @@ size_t	ft_strlen_exp(char *s)
 	return (i);
 }
 
-int ft_get_index_env(char **env, char *target)
+int	ft_get_index_env(char **env, char *target)
 {
-    int ret = 0;
-    int target_len = ft_strlen_exp(target); // length before '='
-    
-    while (env[ret])
-    {
-        if (ft_strncmp_ft(env[ret], target, target_len) == 0 && 
-            (env[ret][target_len] == '=' || env[ret][target_len] == '\0'))
-            return (ret);
-        ret++;
-    }
-    return (-1);
+	int	ret;
+
+	ret = 0;
+	int target_len = ft_strlen_exp(target); // length before '='
+	while (env[ret])
+	{
+		if (ft_strncmp_ft(env[ret], target, target_len) == 0
+			&& (env[ret][target_len] == '=' || env[ret][target_len] == '\0'))
+			return (ret);
+		ret++;
+	}
+	return (-1);
 }
 
 int	func_env(t_data *data)
@@ -85,7 +86,8 @@ int	func_cd(t_data *data)
 {
 	const char	*path;
 	struct stat	file_stat;
-	char *tmp;
+	char		*tmp;
+	int			i;
 
 	data->old_pwd = getcwd(NULL, 0);
 	tmp = data->old_pwd;
@@ -148,7 +150,7 @@ int	func_cd(t_data *data)
 	tmp = data->pwd;
 	data->pwd = ft_strjoin_ft("PWD=", tmp);
 	free(tmp);
-	int i = ft_get_index_env(data->env, "OLDPWD=");
+	i = ft_get_index_env(data->env, "OLDPWD=");
 	data->env[i] = data->old_pwd;
 	i = ft_get_index_env(data->env, "PWD=");
 	data->env[i] = data->pwd;
@@ -156,256 +158,256 @@ int	func_cd(t_data *data)
 	return (0);
 }
 
-int func_echo(t_data *data)
+int	func_echo(t_data *data)
 {
-    int i;
-    int n_flag;
-    
-    i = 1;
-    n_flag = 0;
-    if (!data->commands->args[i])
-    {
-        write(STDOUT_FILENO, "\n", 1);
-        return (0);
-    }
-    while (data->commands->args[i] && data->commands->args[i][0] == '-')
-    {
-        int j = 1;
-        while (data->commands->args[i][j] == 'n')
-            j++;
-        if (data->commands->args[i][j] != '\0')  // If not all 'n', break
-            break;
-        if (j == 1)  // If just "-", break
-            break;
-        n_flag = 1;
-        i++;
-    }
-    while (data->commands->args[i])
-    {
-        ft_putstr_fd(data->commands->args[i], STDOUT_FILENO);
-        i++;
-        if(data->commands->args[i])
-           write(STDOUT_FILENO, " ", 1); 
-    }
-    if (n_flag == 0)
+	int	i;
+	int	n_flag;
+	int	j;
+
+	i = 1;
+	n_flag = 0;
+	if (!data->commands->args[i])
 	{
-        write(STDOUT_FILENO, "\n", 1);
+		write(STDOUT_FILENO, "\n", 1);
+		return (0);
+	}
+	while (data->commands->args[i] && data->commands->args[i][0] == '-')
+	{
+		j = 1;
+		while (data->commands->args[i][j] == 'n')
+			j++;
+		if (data->commands->args[i][j] != '\0') // If not all 'n', break
+			break ;
+		if (j == 1) // If just "-", break
+			break ;
+		n_flag = 1;
+		i++;
+	}
+	while (data->commands->args[i])
+	{
+		ft_putstr_fd(data->commands->args[i], STDOUT_FILENO);
+		i++;
+		if (data->commands->args[i])
+			write(STDOUT_FILENO, " ", 1);
+	}
+	if (n_flag == 0)
+	{
+		write(STDOUT_FILENO, "\n", 1);
 	}
 	g_exit_status = 0;
 	return (0);
 }
 
-
-int    func_exit(t_data *data)
+int	func_exit(t_data *data)
 {
-    int i;
-    int g_exit_status;
+	int	i;
+	int	g_exit_status;
 
-    // Check if there are too many arguments first
-    if (data->commands->args[1] && data->commands->args[2])
-    {
-        ft_putstr_fd("exit: too many arguments\n", STDOUT_FILENO);
-        return (EXIT_FAILURE);
-    }
-
-    // Only check numeric if args[1] exists
-    if (data->commands->args[1])
-    {
-        i = 0;
-        //check if numeric
-        while (data->commands->args[1][i])
-        {
-            if ((data->commands->args[1][i] < '0' || data->commands->args[1][i] > '9') && data->commands->args[1][i] != '+' && data->commands->args[1][i] != '-')
-                {
-                    ft_putstr_fd("exit : ", STDOUT_FILENO);
-                    ft_putstr_fd(data->commands->args[1], STDOUT_FILENO);
-                    ft_putstr_fd(":numeric argument required\n", STDOUT_FILENO);
-                    exit(255);
-                }
-            i++;
-        }
-        g_exit_status = ft_atoi(data->commands->args[1]);
-    }
-    else
-        g_exit_status = 0;
-    
-    exit(g_exit_status);
+	// Check if there are too many arguments first
+	if (data->commands->args[1] && data->commands->args[2])
+	{
+		ft_putstr_fd("exit: too many arguments\n", STDOUT_FILENO);
+		return (EXIT_FAILURE);
+	}
+	// Only check numeric if args[1] exists
+	if (data->commands->args[1])
+	{
+		i = 0;
+		// check if numeric
+		while (data->commands->args[1][i])
+		{
+			if ((data->commands->args[1][i] < '0'
+					|| data->commands->args[1][i] > '9')
+				&& data->commands->args[1][i] != '+'
+				&& data->commands->args[1][i] != '-')
+			{
+				ft_putstr_fd("exit : ", STDOUT_FILENO);
+				ft_putstr_fd(data->commands->args[1], STDOUT_FILENO);
+				ft_putstr_fd(":numeric argument required\n", STDOUT_FILENO);
+				exit(255);
+			}
+			i++;
+		}
+		g_exit_status = ft_atoi(data->commands->args[1]);
+	}
+	else
+		g_exit_status = 0;
+	exit(g_exit_status);
 }
 
 int	func_unset(t_data *data)
 {
-    int		i;
-    int		var_len;
-    int		len_args;
-    char	*var_name;
-    int		j;
+	int		i;
+	int		var_len;
+	int		len_args;
+	char	*var_name;
+	int		j;
 
-
-    if (!data->commands->args[1])
-        return (0);
-    len_args = ft_strlen_ft(data->commands->args[1]);
-    i = 0;
-    while (data->env[i])
-    {
-        var_name = data->env[i];
-        var_len = ft_strlen_exp(var_name);
-        if (ft_strncmp_ft(var_name, data->commands->args[1], len_args) == 0
-            && var_len == len_args)
-        {
-            free(data->env[i]);
-            j = i;
-            while (data->env[j])
-            {
-                data->env[j] = data->env[j + 1];
-                j++;
-            }
-            continue;
-        }
-        i++;
-    }
+	if (!data->commands->args[1])
+		return (0);
+	len_args = ft_strlen_ft(data->commands->args[1]);
+	i = 0;
+	while (data->env[i])
+	{
+		var_name = data->env[i];
+		var_len = ft_strlen_exp(var_name);
+		if (ft_strncmp_ft(var_name, data->commands->args[1], len_args) == 0
+			&& var_len == len_args)
+		{
+			free(data->env[i]);
+			j = i;
+			while (data->env[j])
+			{
+				data->env[j] = data->env[j + 1];
+				j++;
+			}
+			continue ;
+		}
+		i++;
+	}
 	g_exit_status = 0;
-    return (0);
+	return (0);
 }
 
-int is_valid_identifier(char *str)
+int	is_valid_identifier(char *str)
 {
-    int i = 0;
-    
-    // Must start with letter or underscore
-    if (!str || (!isalpha(str[0]) && str[0] != '_'))
-        return (0);
-    
-    // Check rest of characters before '='
-    while (str[i] && str[i] != '=')
-    {
-        if (!isalnum(str[i]) && str[i] != '_')
-            return (0);
-        i++;
-    }
-    return (1);
+	int	i;
+
+	i = 0;
+	// Must start with letter or underscore
+	if (!str || (!isalpha(str[0]) && str[0] != '_'))
+		return (0);
+	// Check rest of characters before '='
+	while (str[i] && str[i] != '=')
+	{
+		if (!isalnum(str[i]) && str[i] != '_')
+			return (0);
+		i++;
+	}
+	return (1);
 }
 
 int	func_export(t_data *data)
 {
-    int	i;
-    int j = 1;
-    int existing_index;
-    
-    get_export(data);
-    if (!data->commands->args[1])
-    {
-        i = 0;
-        while (data->export[i])
-            printf("%s\n", data->export[i++]);
-    }
-    else
-    {
-        while(data->commands->args[j])
-        {
-            // Validate identifier
-            if (!is_valid_identifier(data->commands->args[j]))
-            {
-                ft_putstr_fd("bash: export: `", STDERR_FILENO);
-                ft_putstr_fd(data->commands->args[j], STDERR_FILENO);
-                ft_putstr_fd("': not a valid identifier\n", STDERR_FILENO);
-                j++;
-                continue;
-            }
-            
-            // Check if the argument contains '=' (has a value)
-            if (strchr(data->commands->args[j], '=') != NULL)
-            {
-                // Variable with value - normal export behavior
-                existing_index = ft_get_index_env(data->env, data->commands->args[j]);
-                if (existing_index != -1)
-                {
-                    // Variable exists, update it
-                    free(data->env[existing_index]);
-                    data->env[existing_index] = ft_strdup_ft(data->commands->args[j]);
-                }
-                else
-                {
-                    // Variable doesn't exist, add it
-                    i = 0;
-                    while (data->env[i])
-                        i++;
-                    data->env[i] = ft_strdup_ft(data->commands->args[j]);
-                    data->env[i + 1] = NULL;
-                }
-            }
-            else
-            {
-                // Variable without value - only export if it already exists
-                existing_index = ft_get_index_env(data->env, data->commands->args[j]);
-                if (existing_index == -1)
-                {
-                    // Variable doesn't exist, create it without value
-                    i = 0;
-                    while (data->env[i])
-                        i++;
-                    data->env[i] = ft_strdup_ft(data->commands->args[j]);
-                    data->env[i + 1] = NULL;
-                }
-                // If it exists, do nothing (keep existing value)
-            }
-            j++;
-        }
-    }
+	int	i;
+	int	j;
+	int	existing_index;
+
+	j = 1;
+	get_export(data);
+	if (!data->commands->args[1])
+	{
+		i = 0;
+		while (data->export[i])
+			printf("%s\n", data->export[i++]);
+	}
+	else
+	{
+		while (data->commands->args[j])
+		{
+			// Validate identifier
+			if (!is_valid_identifier(data->commands->args[j]))
+			{
+				ft_putstr_fd("bash: export: `", STDERR_FILENO);
+				ft_putstr_fd(data->commands->args[j], STDERR_FILENO);
+				ft_putstr_fd("': not a valid identifier\n", STDERR_FILENO);
+				j++;
+				continue ;
+			}
+			// Check if the argument contains '=' (has a value)
+			if (strchr(data->commands->args[j], '=') != NULL)
+			{
+				// Variable with value - normal export behavior
+				existing_index = ft_get_index_env(data->env,
+						data->commands->args[j]);
+				if (existing_index != -1)
+				{
+					// Variable exists, update it
+					free(data->env[existing_index]);
+					data->env[existing_index] = ft_strdup_ft(data->commands->args[j]);
+				}
+				else
+				{
+					// Variable doesn't exist, add it
+					i = 0;
+					while (data->env[i])
+						i++;
+					data->env[i] = ft_strdup_ft(data->commands->args[j]);
+					data->env[i + 1] = NULL;
+				}
+			}
+			else
+			{
+				// Variable without value - only export if it already exists
+				existing_index = ft_get_index_env(data->env,
+						data->commands->args[j]);
+				if (existing_index == -1)
+				{
+					// Variable doesn't exist, create it without value
+					i = 0;
+					while (data->env[i])
+						i++;
+					data->env[i] = ft_strdup_ft(data->commands->args[j]);
+					data->env[i + 1] = NULL;
+				}
+				// If it exists, do nothing (keep existing value)
+			}
+			j++;
+		}
+	}
 	g_exit_status = 0;
-    return (0);
+	return (0);
 }
 
 int	builtin(t_data *data)
 {
-    pid_t	pid;
-    int		status;
+	pid_t	pid;
+	int		status;
 
-    if (ft_strcmp_ft(data->commands->args[0], "echo") == 0
-        || ft_strcmp_ft(data->commands->args[0], "pwd") == 0
-        || ft_strcmp_ft(data->commands->args[0], "env") == 0)
-    {
-        pid = fork();
-        if (pid == 0)
-        {
-            // Handle redirections
-            if (data->commands->redirects)
-                handle_redirections(data);
-
-            // Redirect stdin and stdout
-            do_dup(data->fd_in, data->fd_out);
-
-            // Execute the built-in command
-            if (ft_strcmp_ft(data->commands->args[0], "echo") == 0)
-                func_echo(data);
-            else if (ft_strcmp_ft(data->commands->args[0], "pwd") == 0)
-                func_pwd();
-            else if (ft_strcmp_ft(data->commands->args[0], "env") == 0)
-                func_env(data);
-            // Exit the child process
-            exit(0);
-        }
-        else if (pid < 0)
-        {
-            perror("fork failed");
-            return (1);
-        }
-        else
-        {
-            // Wait for the child process to finish
-            waitpid(pid, &status, 0);
-            g_exit_status = ft_get_exit_status(status);
-            return (g_exit_status);
-        }
-    }
+	if (ft_strcmp_ft(data->commands->args[0], "echo") == 0
+		|| ft_strcmp_ft(data->commands->args[0], "pwd") == 0
+		|| ft_strcmp_ft(data->commands->args[0], "env") == 0)
+	{
+		pid = fork();
+		if (pid == 0)
+		{
+			// Handle redirections
+			if (data->commands->redirects)
+				handle_redirections(data);
+			// Redirect stdin and stdout
+			do_dup(data->fd_in, data->fd_out);
+			// Execute the built-in command
+			if (ft_strcmp_ft(data->commands->args[0], "echo") == 0)
+				func_echo(data);
+			else if (ft_strcmp_ft(data->commands->args[0], "pwd") == 0)
+				func_pwd();
+			else if (ft_strcmp_ft(data->commands->args[0], "env") == 0)
+				func_env(data);
+			// Exit the child process
+			exit(0);
+		}
+		else if (pid < 0)
+		{
+			perror("fork failed");
+			return (1);
+		}
+		else
+		{
+			// Wait for the child process to finish
+			waitpid(pid, &status, 0);
+			g_exit_status = ft_get_exit_status(status);
+			return (g_exit_status);
+		}
+	}
 	else if (ft_strcmp_ft(data->commands->args[0], "export") == 0)
 		func_export(data);
-    else if (ft_strcmp_ft(data->commands->args[0], "unset") == 0)
-        func_unset(data);
-    else if (ft_strcmp_ft(data->commands->args[0], "exit") == 0)
-        func_exit(data);
+	else if (ft_strcmp_ft(data->commands->args[0], "unset") == 0)
+		func_unset(data);
+	else if (ft_strcmp_ft(data->commands->args[0], "exit") == 0)
+		func_exit(data);
 	else if (ft_strcmp_ft(data->commands->args[0], "cd") == 0)
-        func_cd(data);
-    return (0);
+		func_cd(data);
+	return (0);
 }
 
 int	get_env(char **env, t_data *data)
@@ -430,20 +432,21 @@ int	get_env(char **env, t_data *data)
 
 int	builtin_checker(t_data *data)
 {
-    if (!data || !data->commands || !data->commands->args || !data->commands->args[0])
-    {
-        // ft_putstr_fd("Error: Invalid command structure\n", STDERR_FILENO);
-        return (1);
-    }
-    if (ft_strcmp_ft(data->commands->args[0], "echo") == 0
-        || ft_strcmp_ft(data->commands->args[0], "cd") == 0
-        || ft_strcmp_ft(data->commands->args[0], "pwd") == 0
-        || ft_strcmp_ft(data->commands->args[0], "env") == 0
-        || ft_strcmp_ft(data->commands->args[0], "export") == 0
-        || ft_strcmp_ft(data->commands->args[0], "unset") == 0
-        || ft_strcmp_ft(data->commands->args[0], "exit") == 0)
-        return (0);
-    return (1);
+	if (!data || !data->commands || !data->commands->args
+		|| !data->commands->args[0])
+	{
+		// ft_putstr_fd("Error: Invalid command structure\n", STDERR_FILENO);
+		return (1);
+	}
+	if (ft_strcmp_ft(data->commands->args[0], "echo") == 0
+		|| ft_strcmp_ft(data->commands->args[0], "cd") == 0
+		|| ft_strcmp_ft(data->commands->args[0], "pwd") == 0
+		|| ft_strcmp_ft(data->commands->args[0], "env") == 0
+		|| ft_strcmp_ft(data->commands->args[0], "export") == 0
+		|| ft_strcmp_ft(data->commands->args[0], "unset") == 0
+		|| ft_strcmp_ft(data->commands->args[0], "exit") == 0)
+		return (0);
+	return (1);
 }
 
 void	do_dup(int fd_in, int fd_out)
@@ -632,7 +635,15 @@ int	ft_get_exit_status(int status)
 {
 	int	exit_status;
 
-	if (WIFEXITED(status))
+	if (WIFSIGNALED(status))
+	{
+		if (WTERMSIG(status) == SIGINT)
+			write(2, "\n", 1);
+		else if (WTERMSIG(status) == SIGQUIT)
+			ft_putstr_fd("Quit (core dumped)\n", 2);
+		exit_status = WTERMSIG(status) + 128;
+	}
+	else if (WIFEXITED(status))
 		exit_status = WEXITSTATUS(status);
 	else
 		exit_status = EXIT_FAILURE;
@@ -641,36 +652,41 @@ int	ft_get_exit_status(int status)
 
 int	handle_cmd(t_data *data, int flag)
 {
-    int	pid;
-    int	status;
+	int	pid;
+	int	status;
 
-    if (!builtin_checker(data))
-    {
-        status = builtin(data);
-        g_exit_status = status;
-        if (flag)
-            exit(status);
-        return (status);
-    }
-    pid = fork();
-    if (pid == 0)
-    {
-        do_dup(data->fd_in, data->fd_out);
-        exec_cmd(data);
-    }
-    else if (pid < 0)
-    {
-        perror("fork failed");
-        g_exit_status = 1;
-    }
-    else
-    {
-        waitpid(pid, &status, 0);
-        g_exit_status = ft_get_exit_status(status);
-    }
-    if (flag)
-        exit(g_exit_status);
-    return (g_exit_status);
+	if (!builtin_checker(data))
+	{
+		status = builtin(data);
+		g_exit_status = status;
+		if (flag)
+			exit(status);
+		return (status);
+	}
+	pid = fork();
+	if (pid == 0)
+	{
+		signal(SIGINT, handle_child_sigint);
+		signal(SIGQUIT, handle_child_sigquit);
+		do_dup(data->fd_in, data->fd_out);
+		exec_cmd(data);
+	}
+	else if (pid < 0)
+	{
+		perror("fork failed");
+		g_exit_status = 1;
+	}
+	else
+	{
+		signal(SIGINT, SIG_IGN);
+		signal(SIGQUIT, SIG_IGN);
+		waitpid(pid, &status, 0);
+		signal(SIGINT, handle_sigint);
+		g_exit_status = ft_get_exit_status(status);
+	}
+	if (flag)
+		exit(g_exit_status);
+	return (g_exit_status);
 }
 
 size_t	get_how_many_pipe(t_data *data)
@@ -754,47 +770,47 @@ int	routine_proccess(t_data *data, t_data_pipe *p_data)
 
 int	handle_pipe(t_data *data)
 {
-    t_data_pipe	p_data;
-    int			cap_ret;
-    int			status;
+	t_data_pipe	p_data;
+	int			cap_ret;
+	int			status;
 
-    pipe_data_init(&p_data, data);
-    while (p_data.i <= p_data.count)
-    {
-        cap_ret = routine_proccess(data, &p_data);
-        if (cap_ret == EXIT_FAILURE)
-        {
-            g_exit_status = EXIT_FAILURE;
-            return (EXIT_FAILURE);
-        }
-    }
-    close(p_data.p_fd[0]);
-    p_data.i = -1;
-    p_data.count++;
-    while (++(p_data.i) < p_data.count)
-        waitpid(p_data.pid[p_data.i], &status, 0);
-    g_exit_status = ft_get_exit_status(status);
-    return (g_exit_status);
+	pipe_data_init(&p_data, data);
+	while (p_data.i <= p_data.count)
+	{
+		cap_ret = routine_proccess(data, &p_data);
+		if (cap_ret == EXIT_FAILURE)
+		{
+			g_exit_status = EXIT_FAILURE;
+			return (EXIT_FAILURE);
+		}
+	}
+	close(p_data.p_fd[0]);
+	p_data.i = -1;
+	p_data.count++;
+	while (++(p_data.i) < p_data.count)
+		waitpid(p_data.pid[p_data.i], &status, 0);
+	g_exit_status = ft_get_exit_status(status);
+	return (g_exit_status);
 }
 
 int	execution_pars(t_data *data)
 {
-    int result;
-    
-    if (!data->commands)
-    {
-        g_exit_status = 1;
-        return (-1);
-    }
-    if (data->commands->next)
-    {
-        result = handle_pipe(data);
-        g_exit_status = result;
-        return (result);
-    }
-    if (data->commands->redirects)
-        handle_redirections(data);
-    result = handle_cmd(data, 0);
-    g_exit_status = result;
-    return (result);
+	int	result;
+
+	if (!data->commands)
+	{
+		g_exit_status = 1;
+		return (-1);
+	}
+	if (data->commands->next)
+	{
+		result = handle_pipe(data);
+		g_exit_status = result;
+		return (result);
+	}
+	if (data->commands->redirects)
+		handle_redirections(data);
+	result = handle_cmd(data, 0);
+	g_exit_status = result;
+	return (result);
 }

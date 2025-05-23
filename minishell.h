@@ -1,23 +1,23 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
-#define TRACKER_ADD 0
-#define TRACKER_GET 1
+# define TRACKER_ADD 0
+# define TRACKER_GET 1
 
 # include <fcntl.h>
+# include <limits.h>
 # include <readline/history.h>
 # include <readline/readline.h>
 # include <signal.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
-# include <limits.h>
 # include <sys/stat.h>
 # include <sys/types.h>
 # include <sys/wait.h>
 # include <unistd.h>
 
-extern int g_exit_status;
+extern int				g_exit_status;
 
 typedef enum e_type
 {
@@ -71,8 +71,8 @@ typedef struct s_data
 	t_token				*tokens;
 	t_token				*last_token;
 	t_command			*commands;
-	int 				fd_in;
-	int 				fd_out;
+	int					fd_in;
+	int					fd_out;
 	char				*pwd;
 	char				*old_pwd;
 	char				**env;
@@ -85,7 +85,9 @@ typedef struct s_data
 }						t_data;
 
 void					setup_signals(void);
-void 					handle_heredoc_sigint(int sig);
+void					handle_sigint(int sig);
+void					handle_child_sigint(int sig);
+void					handle_child_sigquit(int sig);
 int						ft_atoi(char *nptr);
 void					ft_putstr_fd(char *s, int fd);
 char					*ft_strdup(const char *s1);
@@ -108,10 +110,10 @@ void					skip_spaces(char *line, int *i);
 int						check_leading_pipe(char *line, int *i);
 int						check_syntax_errors(t_token *token);
 int						check_consecutive_operators(t_token *token);
-int ft_get_index_env(char **env, char *target);
-size_t	ft_strlen_exp(char *s);
+int						ft_get_index_env(char **env, char *target);
+size_t					ft_strlen_exp(char *s);
 int						tokenize_input(char *line, t_data *data);
-t_token	*create_new_token(t_type type, char *content);
+t_token					*create_new_token(t_type type, char *content);
 void					add_token_to_list(t_data *data, t_type type,
 							char *content);
 void					set_flags(t_data *data, int delimiter, int filename);
@@ -123,7 +125,7 @@ void					append_to_last_token(t_data *data, char *str,
 void					check_lead_space(t_data *data, char *var_value);
 void					check_trail_space(t_data *data, char *var_value,
 							char *line, int *i);
-int 					is_amb_redirect(t_token *redirect);
+int						is_amb_redirect(t_token *redirect);
 void					handle_spaces_in_var(t_data *data, char *var_value,
 							int *j);
 
@@ -134,10 +136,10 @@ void					handle_var_expansion(t_data *data, char *line, int *i);
 
 void					parse_commands(t_data *data);
 
-t_alloc_list	**tracker(void *ptr, int option);
-void		free_memory(void);
-void		ft_free(void *ptr);
-void		*ft_malloc(size_t size);
+t_alloc_list			**tracker(void *ptr, int option);
+void					free_memory(void);
+void					ft_free(void *ptr);
+void					*ft_malloc(size_t size);
 
 int						is_redirection(t_type type);
 void					add_command_to_list(t_data *data,
@@ -145,18 +147,19 @@ void					add_command_to_list(t_data *data,
 int						count_args(t_token *current);
 
 int						process_heredocs(t_data *data);
-char	*generate_heredoc_filepath(void);
+char					*generate_heredoc_filepath(void);
 void					print_heredoc_warning(char *delimiter);
-int						check_hd_exit_status(t_data *data, int status);
+int						check_hd_exit_status(int status);
 int						handle_heredoc(t_data *data, t_token *heredoc);
 char					*process_hd_line(t_data *data, t_token *hd, char *line,
 							char *content);
-void	mark_amb(char *line, int start_i, t_token *amb_redirect);
+void					mark_amb(char *line, int start_i,
+							t_token *amb_redirect);
 void					report_redirect_errors(t_data *data);
 void					skip_to_next_command(t_token **token);
 
-void	print_command_list(t_command *commands);// i need to remove this later
-void    print_tokens(t_token *tokens);// also this...
+void	print_command_list(t_command *commands); // i need to remove this later
+void	print_tokens(t_token *tokens);           // also this...
 
 typedef struct s_inf
 {
@@ -172,14 +175,14 @@ typedef struct s_inf
 
 typedef struct s_data_pipe
 {
-	size_t count;
-	size_t i;
-	int for_close;
-	int stored_fd_in;
-	int stored_fd_out;
-	int flag;
-	int *pid;
-	int p_fd[2];
+	size_t				count;
+	size_t				i;
+	int					for_close;
+	int					stored_fd_in;
+	int					stored_fd_out;
+	int					flag;
+	int					*pid;
+	int					p_fd[2];
 }						t_data_pipe;
 
 int						ft_get_exit_status(int status);

@@ -78,8 +78,6 @@ void	handle_var_expansion(t_data *data, char *line, int *i)
 	j = 0;
 	word = NULL;
 	var_value = expand(line, i, data);
-	check_lead_space(data, var_value);
-	skip_spaces(var_value, &j);
 	while (var_value[j])
 	{
 		if (ft_isspace(var_value[j]))
@@ -89,9 +87,8 @@ void	handle_var_expansion(t_data *data, char *line, int *i)
 			while (var_value[j] && !ft_isspace(var_value[j]))
 				word = add_char_to_str(word, var_value[j++]);
 			append_to_last_token(data, word, 0);
-			word = ft_strdup("");
+			word = NULL;
 		}
 	}
-	check_trail_space(data, var_value, line, i);
 	ft_free(var_value);
 }

@@ -68,16 +68,16 @@ int	handle_heredoc(t_data *data, t_token *heredoc)
 	saved_sig_handler = signal(SIGINT, SIG_IGN);
 	if (pid == 0)
 	{
-		signal(SIGINT, handle_heredoc_sigint);
+		signal(SIGINT, handle_child_sigint);
 		get_heredoc_input(data, heredoc, filepath);
 		free_memory();
 		exit(0);
 	}
 		waitpid(pid, &status, 0);
 		signal(SIGINT, saved_sig_handler);
-		if (check_hd_exit_status(data, status)
+		if (check_hd_exit_status(status)
 			|| read_hd_content_from_file(heredoc, filepath))
-			return (1);
+			return (write(1, "\n", 1), 1);
 
 	return (0);
 }
