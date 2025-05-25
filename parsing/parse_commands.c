@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parse_commands.c                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: outourmi <outourmi@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/12 18:22:53 by outourmi          #+#    #+#             */
+/*   Updated: 2025/07/15 15:20:12 by outourmi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../minishell.h"
 
 int	has_invalid_redirect(t_token *token)
@@ -20,8 +32,6 @@ void	add_redirection(t_token **current, t_command *command)
 	ft_memset(new_redirect, 0, sizeof(t_redirect));
 	new_redirect->type = (*current)->type;
 	new_redirect->target = ft_strdup((*current)->next->content);
-	if (new_redirect->type == HEREDOC)
-		new_redirect->hd_content = ft_strdup((*current)->hd_content);
 	(*current) = (*current)->next->next;
 	if (!command->redirects)
 	{
@@ -34,8 +44,7 @@ void	add_redirection(t_token **current, t_command *command)
 	redirects->next = new_redirect;
 }
 
-void	set_args(t_command *command, int arg_count,
-		t_token *current)
+void	set_args(t_command *command, int arg_count, t_token *current)
 {
 	char	**args;
 	int		i;
@@ -58,8 +67,7 @@ void	set_args(t_command *command, int arg_count,
 	command->args = args;
 }
 
-void	initialize_command(t_command *command,
-		t_token **cmd_start)
+void	initialize_command(t_command *command, t_token **cmd_start)
 {
 	t_token	*current;
 	int		arg_count;
@@ -68,7 +76,9 @@ void	initialize_command(t_command *command,
 	current = *cmd_start;
 	while (current && current->type != PIPE)
 	{
-		if (is_redirection(current->type))
+		if (current->has_invalid_file || current->is_amb_redirect)
+			command->has_invalid_redirect = 1;
+		if (is_redirection(current->type) && !command->has_invalid_redirect)
 			add_redirection(&current, command);
 		else if (current->type == WORD && current->content)
 		{
@@ -85,22 +95,15 @@ void	initialize_command(t_command *command,
 
 void	parse_commands(t_data *data)
 {
-	t_token *cmd_start;
-	t_command *new_command;
+	t_token		*cmd_start;
+	t_command	*new_command;
 
 	cmd_start = data->tokens;
 	while (cmd_start)
 	{
 		new_command = (t_command *)ft_malloc(sizeof(t_command));
 		ft_memset(new_command, 0, sizeof(t_command));
-
-		if (has_invalid_redirect(cmd_start))
-		{
-			new_command->has_invalid_redirect = 1;
-			skip_to_next_command(&cmd_start);
-		}
-		else
-			initialize_command(new_command, &cmd_start);
+		initialize_command(new_command, &cmd_start);
 		add_command_to_list(data, new_command);
 		if (cmd_start && cmd_start->type == PIPE)
 			cmd_start = cmd_start->next;

@@ -3,41 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: outourmi <outourmi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ynadime <ynadime@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 16:12:44 by outourmi          #+#    #+#             */
-/*   Updated: 2025/05/23 17:40:31 by outourmi         ###   ########.fr       */
+/*   Updated: 2025/07/14 19:12:18 by ynadime          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-int	ft_atoi(char *nptr)
-{
-	int	i;
-	int	signe;
-	int	result;
-
-	i = 0;
-	result = 0;
-	signe = 1;
-	while ((nptr[i] >= 9 && nptr[i] <= 13) || nptr[i] == ' ')
-	{
-		i++;
-	}
-	if (nptr[i] == '-' || nptr[i] == '+')
-	{
-		if (nptr[i] == '-')
-			signe *= -1;
-		i++;
-	}
-	while (nptr[i] >= '0' && nptr[i] <= '9')
-	{
-		result = result * 10 + nptr[i] - 48;
-		i++;
-	}
-	return (result * signe);
-}
 
 size_t	ft_strlen_ft(char *s)
 {
@@ -71,7 +44,7 @@ char	*ft_substr_ft(char *s, unsigned int start, size_t len)
 	{
 		len = length - start;
 	}
-	result = (char *)malloc(len + 1);
+	result = (char *)ft_malloc(len + 1);
 	if (result == NULL)
 		return (NULL);
 	while (i < len)
@@ -96,7 +69,7 @@ char	*ft_strjoin_ft(char *s1, char *s2)
 	i = 0;
 	h = 0;
 	len = (ft_strlen_ft(s1) + ft_strlen_ft(s2));
-	ss = malloc((len + 1) * sizeof(char));
+	ss = ft_malloc((len + 1) * sizeof(char));
 	if (ss == NULL)
 		return (NULL);
 	while (s1[h])
@@ -155,30 +128,4 @@ int	ft_strncmp_ft(char *s1, char *s2, size_t n)
 	}
 	else
 		return (0);
-}
-
-char	*ft_strdup_ft(char *src)
-{
-	int i;
-	int len;
-	char *dest;
-
-	i = 0;
-	len = 0;
-	if (src == NULL)
-		return (NULL);
-	while (src[len])
-	{
-		len++;
-	}
-	dest = malloc((len + 1) * sizeof(char));
-	if (dest == NULL)
-		return (NULL);
-	while (src[i])
-	{
-		dest[i] = src[i];
-		i++;
-	}
-	dest[i] = '\0';
-	return (dest);
 }

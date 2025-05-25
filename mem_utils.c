@@ -1,5 +1,36 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   mem_utils.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: outourmi <outourmi@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/15 15:10:56 by ynadime           #+#    #+#             */
+/*   Updated: 2025/07/15 15:22:10 by outourmi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
+void	hd_file_manager(char *filepath)
+{
+	static t_heredoc_list	*file_list;
+	t_heredoc_list			*new_file;
+
+	if (filepath == NULL)
+	{
+		while (file_list)
+		{
+			unlink(file_list->filepath);
+			file_list = file_list->next;
+		}
+		return ;
+	}
+	new_file = (t_heredoc_list *)ft_malloc(sizeof(t_heredoc_list));
+	new_file->filepath = filepath;
+	new_file->next = file_list;
+	file_list = new_file;
+}
 
 t_alloc_list	**tracker(void *ptr, int option)
 {

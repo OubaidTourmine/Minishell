@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   redirection.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: outourmi <outourmi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ynadime <ynadime@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 17:16:10 by outourmi          #+#    #+#             */
-/*   Updated: 2025/06/30 15:10:19 by outourmi         ###   ########.fr       */
+/*   Updated: 2025/07/14 18:54:03 by ynadime          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,6 @@ void	handle_redirections(t_data *data)
 {
 	int	close_in;
 	int	close_out;
-			int pfd[2];
 
 	close_in = data->fd_in;
 	close_out = data->fd_out;
@@ -44,15 +43,6 @@ void	handle_redirections(t_data *data)
 			data->fd_in = open_file(data, 2);
 		else if (data->commands->redirects->type == APPEND)
 			data->fd_out = open_file(data, 3);
-		else if (data->commands->redirects->type == HEREDOC)
-		{
-			if (pipe(pfd) == -1)
-				perror("minishell: pipe");
-			write(pfd[1], data->commands->redirects->hd_content,
-				ft_strlen(data->commands->redirects->hd_content));
-			close(pfd[1]);
-			data->fd_in = pfd[0];
-		}
 		if (close_in != 0 && close_in != data->fd_in)
 			close(close_in);
 		if (close_out != 1 && close_out != data->fd_out)

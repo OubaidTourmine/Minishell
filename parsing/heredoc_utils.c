@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   heredoc_utils.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: outourmi <outourmi@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/12 18:23:27 by outourmi          #+#    #+#             */
+/*   Updated: 2025/07/12 18:23:33 by outourmi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../minishell.h"
 
 char	*generate_heredoc_filepath(void)
@@ -40,8 +52,6 @@ int	check_hd_exit_status(int status)
 	if (WIFSIGNALED(status))
 	{
 		printf("dkhl hna");
-		// if (WTERMSIG(status) == SIGINT)
-		// 	write(1, "\n", 1);
 		g_exit_status = WTERMSIG(status) + 128;
 		return (1);
 	}

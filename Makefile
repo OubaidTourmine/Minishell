@@ -2,12 +2,23 @@ NAME = minishell
 
 SRC = minishell.c \
       signals.c \
+	  builtins.c \
+	  builtins2.c \
+	  builtins3.c \
+	  builtins4.c \
+	  builtins5.c \
+	  builtins6.c \
       execution.c \
       export.c \
+      export2.c \
       mini.c \
       split.c \
       redirection.c \
+      shell_utils.c \
+      shell_utils2.c \
       utils.c \
+      utils2.c \
+      utils3.c \
 	  mem_utils.c \
 	  parsing/syntax_errors.c \
 	  parsing/redirect_errors.c \
@@ -35,8 +46,7 @@ SRC = minishell.c \
 	  utils/ft_strlen.c \
 	  utils/char_utils.c \
 	  utils/skip_spaces.c \
-	  debugging.c \
-	  #i need to remove the line above later
+	  utils/get_dir_path.c \
 	  
 OBJS = $(SRC:.c=.o)
 

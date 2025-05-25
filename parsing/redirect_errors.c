@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   redirect_errors.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: outourmi <outourmi@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/12 18:22:20 by outourmi          #+#    #+#             */
+/*   Updated: 2025/07/15 15:19:54 by outourmi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../minishell.h"
 
 void	skip_to_next_command(t_token **token)
@@ -15,14 +27,15 @@ char	*extract_amb_error_msg(char *line)
 	while (line[i] && !ft_isspace(line[i]) && line[i] != '<' && line[i] != '>'
 		&& line[i] != '|')
 		i++;
-	amb_msg = ft_strjoin_free(ft_strdup("minishell: "), ft_substr(line, 0,
-				i));
+	amb_msg = ft_strjoin_free(ft_strdup("minishell: "), ft_substr(line, 0, i));
 	amb_msg = ft_strjoin_free(amb_msg, ft_strdup(": ambiguous redirect\n"));
 	return (amb_msg);
 }
 
 int	check_access(char *filename, t_type type)
 {
+	char	*dir_path;
+
 	if (type == INPUT)
 	{
 		if (access(filename, F_OK) == -1 || access(filename, R_OK))
@@ -33,7 +46,9 @@ int	check_access(char *filename, t_type type)
 	}
 	else
 	{
-		if (access(filename, F_OK) != -1 && access(filename, W_OK) == -1)
+		dir_path = get_dir_path(filename);
+		if ((access(dir_path, W_OK) == -1) || (access(filename, F_OK) != -1
+				&& access(filename, W_OK) == -1))
 		{
 			ft_putstr_fd("minishell: ", 2);
 			return (perror(filename), 1);
@@ -46,8 +61,6 @@ void	mark_amb(char *line, int start_i, t_token *amb_redirect)
 {
 	amb_redirect->is_amb_redirect = 1;
 	amb_redirect->amb_error_msg = extract_amb_error_msg(line + start_i);
-	// while (line[*data->line_pos] && line[*data->line_pos] != '|')
-	// 	(*data->line_pos)++;
 }
 
 void	report_redirect_errors(t_data *data)
@@ -64,7 +77,7 @@ void	report_redirect_errors(t_data *data)
 			else if (is_redirection(token->type))
 			{
 				if (check_access(token->next->content, token->type))
-				token->has_invalid_file = 1;
+					token->has_invalid_file = 1;
 			}
 		}
 		if (token->has_invalid_file || token->is_amb_redirect)

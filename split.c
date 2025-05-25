@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   split.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: outourmi <outourmi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ynadime <ynadime@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 15:40:01 by outourmi          #+#    #+#             */
-/*   Updated: 2025/06/19 15:08:34 by outourmi         ###   ########.fr       */
+/*   Updated: 2025/07/15 10:49:02 by ynadime          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,10 +21,10 @@ static void	ft_freee(char **ptr)
 	{
 		while (ptr[i])
 		{
-			free(ptr[i]);
+			ft_free(ptr[i]);
 			i++;
 		}
-		free(ptr);
+		ft_free(ptr);
 	}
 }
 
@@ -57,7 +57,7 @@ static char	*ft_dup(char const *s, char c)
 	i = 0;
 	while ((s[len] != c) && s[len])
 		len++;
-	a = malloc(len + 1);
+	a = ft_malloc(len + 1);
 	if (a == NULL)
 		return (NULL);
 	while (i < len)
@@ -99,15 +99,15 @@ static char	**splitting(char const *s, char c, char **array)
 
 char	**ft_split(char const *s, char c)
 {
-	char **array;
-	int w_counter;
+	char	**array;
+	int		w_counter;
 
 	if (s == NULL)
 	{
 		return (NULL);
 	}
 	w_counter = ft_word_counter(s, c);
-	array = malloc(sizeof(char *) * (w_counter + 1));
+	array = ft_malloc(sizeof(char *) * (w_counter + 1));
 	if (array == NULL)
 	{
 		return (NULL);

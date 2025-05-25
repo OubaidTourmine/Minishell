@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   handle_words_utils.c                               :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: outourmi <outourmi@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/12 18:24:19 by outourmi          #+#    #+#             */
+/*   Updated: 2025/07/12 18:24:49 by outourmi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../minishell.h"
 
 void	handle_spaces_in_var(t_data *data, char *var_value, int *j)
@@ -6,23 +18,23 @@ void	handle_spaces_in_var(t_data *data, char *var_value, int *j)
 	skip_spaces(var_value, j);
 }
 
-int is_amb_redirect(t_token *redirect)
+int	is_amb_redirect(t_token *redirect)
 {
-	int valid_words;
-	t_token *current;
+	int		valid_words;
+	t_token	*current;
 
 	current = redirect->next;
 	valid_words = 0;
-	while(current)
+	while (current)
 	{
-		if(current->type == WORD && current->content)
-		valid_words++;
+		if (current->type == WORD && current->content)
+			valid_words++;
 		current = current->next;
 	}
-	if(valid_words != 1)
-	return 1;
+	if (valid_words != 1)
+		return (1);
 	else
-	return 0;
+		return (0);
 }
 
 void	append_to_last_token(t_data *data, char *str, int quoted)

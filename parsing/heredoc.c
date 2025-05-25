@@ -1,29 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   heredoc.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: outourmi <outourmi@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/15 15:20:24 by outourmi          #+#    #+#             */
+/*   Updated: 2025/07/15 15:20:50 by outourmi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../minishell.h"
-
-int	read_hd_content_from_file(t_token *heredoc, char *filepath)
-{
-	char	buffer[4096];
-	char	*tmp;
-	int		bytesread;
-	int		fd;
-
-	fd = open(filepath, O_RDONLY, 0600);
-	if (fd == -1)
-		return (perror("minishell: open"), 1);
-	heredoc->hd_content = ft_strdup("");
-	bytesread = read(fd, buffer, 4095);
-	while (bytesread > 0)
-	{
-		buffer[bytesread] = '\0';
-		tmp = heredoc->hd_content;
-		heredoc->hd_content = ft_strjoin(heredoc->hd_content, buffer);
-		ft_free(tmp);
-		bytesread = read(fd, buffer, 4095);
-	}
-	close(fd);
-	unlink(filepath);
-	return (0);
-}
 
 void	get_heredoc_input(t_data *data, t_token *heredoc, char *filepath)
 {
@@ -33,7 +20,7 @@ void	get_heredoc_input(t_data *data, t_token *heredoc, char *filepath)
 
 	fd = open(filepath, O_WRONLY | O_CREAT, 0600);
 	if (fd == -1)
-	{	
+	{
 		perror("minishell: open");
 		free_memory();
 		exit(1);
@@ -43,9 +30,9 @@ void	get_heredoc_input(t_data *data, t_token *heredoc, char *filepath)
 	{
 		tracker(line = readline("> "), TRACKER_ADD);
 		if (!line || !ft_strcmp(heredoc->next->content, line))
-		{	
-			if(!line)
-			print_heredoc_warning(heredoc->next->content);
+		{
+			if (!line)
+				print_heredoc_warning(heredoc->next->content);
 			break ;
 		}
 		content = process_hd_line(data, heredoc, line, content);
@@ -73,17 +60,19 @@ int	handle_heredoc(t_data *data, t_token *heredoc)
 		free_memory();
 		exit(0);
 	}
-		waitpid(pid, &status, 0);
-		signal(SIGINT, saved_sig_handler);
-		if (check_hd_exit_status(status)
-			|| read_hd_content_from_file(heredoc, filepath))
-			return (write(1, "\n", 1), 1);
-
-	return (0);
+	waitpid(pid, &status, 0);
+	signal(SIGINT, saved_sig_handler);
+	if (check_hd_exit_status(status))
+		return (write(1, "\n", 1), 1);
+	ft_free(heredoc->next->content);
+	heredoc->next->content = filepath;
+	heredoc->type = INPUT;
+	return (hd_file_manager(filepath), 0);
 }
+
 int	process_heredocs(t_data *data)
 {
-	t_token *token;
+	t_token	*token;
 
 	token = data->tokens;
 	while (token)

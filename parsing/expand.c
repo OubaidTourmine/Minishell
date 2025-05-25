@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   expand.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: outourmi <outourmi@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/12 18:25:04 by outourmi          #+#    #+#             */
+/*   Updated: 2025/07/12 18:25:42 by outourmi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../minishell.h"
 
 char	*get_var_name(char *line, int *i)
@@ -16,9 +28,9 @@ char	*get_var_name(char *line, int *i)
 
 char	*expand_exit_status(int *i, t_data *data)
 {
-	(void)data;
 	char	*exit_status;
 
+	(void)data;
 	exit_status = ft_itoa(g_exit_status);
 	(*i) += 2;
 	return (exit_status);

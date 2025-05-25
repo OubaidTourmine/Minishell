@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   tokenizer.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ynadime <ynadime@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/12 18:19:24 by outourmi          #+#    #+#             */
+/*   Updated: 2025/07/15 18:39:21 by ynadime          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../minishell.h"
 
 void	tokenize_words(t_data *data, char *line, int *i)
@@ -20,8 +32,6 @@ void	tokenize_words(t_data *data, char *line, int *i)
 			handle_var_expansion(data, line, i);
 		else if (line[*i])
 			handle_regular_word(data, line, i);
-		// if (data->last_token->has_syntax_error)
-		// 	return ;
 	}
 	if (data->is_filename && is_amb_redirect(redir_token))
 		mark_amb(line, start_index, redir_token);
@@ -70,7 +80,7 @@ int	tokenize_input(char *line, t_data *data)
 	i = 0;
 	data->line_pos = &i;
 	if (check_leading_pipe(line, &i))
-		return (1);
+		return (g_exit_status = 1, 1);
 	while (line[i])
 	{
 		if (ft_isspace(line[i]))
@@ -83,8 +93,6 @@ int	tokenize_input(char *line, t_data *data)
 			tokenize_words(data, line, &i);
 		if (data->found_syntax_error)
 			return (ft_free(line), 0);
-	
 	}
-	
 	return (ft_free(line), 0);
 }
