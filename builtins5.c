@@ -3,23 +3,44 @@
 /*                                                        :::      ::::::::   */
 /*   builtins5.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ynadime <ynadime@student.42.fr>            +#+  +:+       +#+        */
+/*   By: outourmi <outourmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/12 17:51:06 by outourmi          #+#    #+#             */
-/*   Updated: 2025/07/14 19:10:10 by ynadime          ###   ########.fr       */
+/*   Updated: 2025/07/18 20:25:53 by outourmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
+char	**resize_env_array(char **env_array)
+{
+	int		i;
+	char	**new_array;
+
+	i = 0;
+	while (env_array[i])
+		i++;
+	new_array = ft_malloc(sizeof(char *) * (i + 2));
+	if (!new_array)
+		return (NULL);
+	i = 0;
+	while (env_array[i])
+	{
+		new_array[i] = env_array[i];
+		i++;
+	}
+	new_array[i] = NULL;
+	new_array[i + 1] = NULL;
+	ft_free(env_array);
+	return (new_array);
+}
+
 int	func_echo_norm(t_data *data)
 {
 	int	i;
-	int	n_flag;
 	int	j;
 
 	i = 1;
-	n_flag = 0;
 	while (data->commands->args[i] && data->commands->args[i][0] == '-')
 	{
 		j = 1;
@@ -29,10 +50,9 @@ int	func_echo_norm(t_data *data)
 			break ;
 		if (j == 1)
 			break ;
-		n_flag = 1;
 		i++;
 	}
-	return (n_flag);
+	return (i - 1);
 }
 
 int	func_echo(t_data *data)
@@ -43,11 +63,9 @@ int	func_echo(t_data *data)
 	i = 1;
 	n_flag = 0;
 	if (!data->commands->args[i])
-	{
-		write(STDOUT_FILENO, "\n", 1);
-		return (0);
-	}
+		return (write(STDOUT_FILENO, "\n", 1), 0);
 	n_flag = func_echo_norm(data);
+	i += n_flag;
 	while (data->commands->args[i])
 	{
 		ft_putstr_fd(data->commands->args[i], STDOUT_FILENO);
@@ -56,9 +74,7 @@ int	func_echo(t_data *data)
 			write(STDOUT_FILENO, " ", 1);
 	}
 	if (n_flag == 0)
-	{
 		write(STDOUT_FILENO, "\n", 1);
-	}
 	g_exit_status = 0;
 	return (0);
 }

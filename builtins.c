@@ -6,7 +6,7 @@
 /*   By: ynadime <ynadime@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/12 17:59:38 by outourmi          #+#    #+#             */
-/*   Updated: 2025/07/15 15:02:59 by ynadime          ###   ########.fr       */
+/*   Updated: 2025/07/18 16:24:02 by outourmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ int	get_env(char **env, t_data *data)
 	i = 0;
 	while (env[i] != NULL)
 		i++;
-	data->env = ft_malloc((i) * sizeof(char *) + 8);
+	data->env = ft_malloc((i + 1) * sizeof(char *) + 8);
 	if (!data->env)
 		return (1);
 	i = 0;

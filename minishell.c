@@ -6,7 +6,7 @@
 /*   By: outourmi <outourmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/12 18:17:13 by outourmi          #+#    #+#             */
-/*   Updated: 2025/07/15 15:21:33 by outourmi         ###   ########.fr       */
+/*   Updated: 2025/07/18 16:17:04 by outourmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ void	get_input(t_data *data)
 	{
 		free_memory();
 		clear_history();
+		write(1, "exit\n", 5);
 		exit(0);
 	}
 	else if (line[0])

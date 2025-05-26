@@ -3,44 +3,30 @@
 /*                                                        :::      ::::::::   */
 /*   builtins3.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ynadime <ynadime@student.42.fr>            +#+  +:+       +#+        */
+/*   By: outourmi <outourmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/12 17:48:24 by outourmi          #+#    #+#             */
-/*   Updated: 2025/07/15 10:48:22 by ynadime          ###   ########.fr       */
+/*   Updated: 2025/07/19 17:02:05 by outourmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	func_pwd(void)
+void	func_unset_env(t_data *data, char *var_name, int len_args,
+		int arg_index)
 {
-	char	cwd[4096];
+	int	i;
+	int	j;
+	int	var_len;
 
-	if (!getcwd(cwd, sizeof(cwd)))
-	{
-		ft_putstr_fd("getcwd failed ", 2);
-		return (1);
-	}
-	ft_putstr_fd(cwd, STDOUT_FILENO);
-	ft_putstr_fd("\n", STDOUT_FILENO);
-	g_exit_status = 0;
-	return (0);
-}
-
-void	func_unset_loop(int len_args, t_data *data)
-{
-	char	*var_name;
-	int		var_len;
-	int		i;
-	int		j;
-
+	i = 0;
 	i = 0;
 	while (data->env[i])
 	{
 		var_name = data->env[i];
 		var_len = ft_strlen_exp(var_name);
-		if (ft_strncmp_ft(var_name, data->commands->args[1], len_args) == 0
-			&& var_len == len_args)
+		if (ft_strncmp_ft(var_name, data->commands->args[arg_index],
+				len_args) == 0 && var_len == len_args)
 		{
 			ft_free(data->env[i]);
 			j = i;
@@ -55,16 +41,69 @@ void	func_unset_loop(int len_args, t_data *data)
 	}
 }
 
+void	func_unset_export(t_data *data, char *var_name, int len_args,
+		int arg_index)
+{
+	int	i;
+	int	j;
+	int	var_len;
+
+	i = 0;
+	i = 0;
+	while (data->export[i])
+	{
+		var_name = data->export[i];
+		var_len = ft_strlen_exp(var_name);
+		if (ft_strncmp_ft(var_name, data->commands->args[arg_index],
+				len_args) == 0 && var_len == len_args)
+		{
+			ft_free(data->export[i]);
+			j = i;
+			while (data->export[j])
+			{
+				data->export[j] = data->export[j + 1];
+				j++;
+			}
+			continue ;
+		}
+		i++;
+	}
+}
+
+void	func_unset_loop(t_data *data, int arg_index)
+{
+	char	*var_name;
+	int		len_args;
+
+	var_name = NULL;
+	len_args = ft_strlen_ft(data->commands->args[arg_index]);
+	func_unset_env(data, var_name, len_args, arg_index);
+	func_unset_export(data, var_name, len_args, arg_index);
+}
+
 int	func_unset(t_data *data)
 {
-	int	len_args;
+	int	arg_index;
 
 	if (!data->commands->args[1])
 		return (0);
-	len_args = ft_strlen_ft(data->commands->args[1]);
-	func_unset_loop(len_args, data);
-	g_exit_status = 0;
-	return (0);
+	arg_index = 1;
+	while (data->commands->args[arg_index])
+	{
+		if (!is_valid_identifier(data->commands->args[arg_index]))
+		{
+			print_export_error(data->commands->args[arg_index]);
+			g_exit_status = 1;
+		}
+		else
+		{
+			func_unset_loop(data, arg_index);
+		}
+		arg_index++;
+	}
+	if (g_exit_status != 1)
+		g_exit_status = 0;
+	return (g_exit_status);
 }
 
 int	is_valid_identifier(char *str)
@@ -81,11 +120,4 @@ int	is_valid_identifier(char *str)
 		i++;
 	}
 	return (1);
-}
-
-void	print_export_error(char *arg)
-{
-	ft_putstr_fd("bash: export: `", STDERR_FILENO);
-	ft_putstr_fd(arg, STDERR_FILENO);
-	ft_putstr_fd("': not a valid identifier\n", STDERR_FILENO);
 }

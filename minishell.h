@@ -6,7 +6,7 @@
 /*   By: outourmi <outourmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/12 18:32:52 by outourmi          #+#    #+#             */
-/*   Updated: 2025/07/15 15:21:21 by outourmi         ###   ########.fr       */
+/*   Updated: 2025/07/19 17:02:56 by outourmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,8 +83,21 @@ typedef struct s_token
 	int						has_syntax_error;
 }							t_token;
 
+typedef struct s_data_pipe
+{
+	size_t					count;
+	size_t					i;
+	int						for_close;
+	int						stored_fd_in;
+	int						st_fd_out; // stored_fd_out
+	int						flag;
+	int						*pid;
+	int						p_fd[2];
+}							t_data_pipe;
+
 typedef struct s_data
 {
+	t_data_pipe				*p_data;
 	t_alloc_list			*allocs;
 	t_token					*tokens;
 	t_token					*last_token;
@@ -95,7 +108,6 @@ typedef struct s_data
 	char					*old_pwd;
 	char					**env;
 	char					**export;
-	int						*line_pos;
 	int						exit_status;
 	int						is_delimiter;
 	int						is_filename;
@@ -104,6 +116,8 @@ typedef struct s_data
 
 void						setup_signals(void);
 void						handle_sigint(int sig);
+int							has_spaces(char *str);
+char						**resize_env_array(char **env_array);
 void						handle_child_sigint(int sig);
 void						handle_child_sigquit(int sig);
 int							ft_atoi(char *nptr);
@@ -121,6 +135,7 @@ void						*ft_memset(void *b, int c, size_t len);
 size_t						ft_strlen(const char *s);
 size_t						ft_strlcpy(char *dst, const char *src,
 								size_t dstsize);
+int							is_path(char *str);
 int							is_valid_var_char(int c);
 int							has_non_space_char(char *str);
 int							is_expandable(int c);
@@ -196,18 +211,8 @@ typedef struct s_inf
 	char					great;
 }							t_inf;
 
-typedef struct s_data_pipe
-{
-	size_t					count;
-	size_t					i;
-	int						for_close;
-	int						stored_fd_in;
-	int						st_fd_out; // stored_fd_out
-	int						flag;
-	int						*pid;
-	int						p_fd[2];
-}							t_data_pipe;
-
+int							func_pwd(void);
+void						print_export_error(char *arg);
 int							ft_get_exit_status(int status);
 void						do_dup(int fd_in, int fd_out);
 int							execution_pars(t_data *data);

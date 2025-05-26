@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtins4.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ynadime <ynadime@student.42.fr>            +#+  +:+       +#+        */
+/*   By: outourmi <outourmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/12 19:04:22 by outourmi          #+#    #+#             */
-/*   Updated: 2025/07/15 10:48:33 by ynadime          ###   ########.fr       */
+/*   Updated: 2025/07/19 16:23:07 by outourmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,11 @@ void	print_export_vars(t_data *data)
 	formatted_export = get_formatted_export(data);
 	i = 0;
 	while (formatted_export[i])
-		printf("%s\n", formatted_export[i++]);
+	{
+		ft_putstr_fd(formatted_export[i], data->fd_out);
+		ft_putstr_fd("\n", data->fd_out);
+		i++;
+	}
 	i = 0;
 	while (formatted_export[i])
 		ft_free(formatted_export[i++]);
@@ -59,6 +63,9 @@ void	update_env_var(t_data *data, char *arg)
 	}
 	else
 	{
+		data->env = resize_env_array(data->env);
+		if (!data->env)
+			return ;
 		i = 0;
 		while (data->env[i])
 			i++;

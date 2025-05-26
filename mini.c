@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mini.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ynadime <ynadime@student.42.fr>            +#+  +:+       +#+        */
+/*   By: outourmi <outourmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/16 15:13:36 by outourmi          #+#    #+#             */
-/*   Updated: 2025/07/15 15:07:42 by ynadime          ###   ########.fr       */
+/*   Updated: 2025/07/18 15:58:02 by outourmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,9 +47,7 @@ void	execute_command(t_data *data)
 		execve(s_cmd[0], data->commands->args, data->env);
 		exit(126);
 	}
-	else if ((data->commands->args[0][0] == '.'
-		&& data->commands->args[0][1] == '/')
-		|| data->commands->args[0][0] == '/')
+	else if (is_path(data->commands->args[0]))
 	{
 		ft_putstr_fd("minishell: ", 2);
 		ft_putstr_fd(data->commands->args[0], 2);
@@ -70,7 +68,7 @@ void	exec_cmd(t_data *data)
 		exit(1);
 	else if (!data->commands->args)
 		exit(0);
-	if (data->commands->args[0][0] == '.' || data->commands->args[0][0] == '/')
+	if (data->commands->args[0][0] == '.' || is_path(data->commands->args[0]))
 	{
 		handle_path_command(data);
 	}

@@ -8,6 +8,7 @@ SRC = minishell.c \
 	  builtins4.c \
 	  builtins5.c \
 	  builtins6.c \
+	  builtins7.c \
       execution.c \
       export.c \
       export2.c \
@@ -34,7 +35,9 @@ SRC = minishell.c \
 	  utils/ft_putstr_fd.c \
 	  utils/has_non_space_char.c \
 	  utils/add_char_to_str.c \
+	  utils/has_spaces.c \
 	  utils/ft_strcmp.c \
+	  utils/is_path.c \
 	  utils/ft_itoa.c \
 	  utils/ft_substr.c \
 	  utils/ft_isspace.c \

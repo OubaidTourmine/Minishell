@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   tokenizer.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ynadime <ynadime@student.42.fr>            +#+  +:+       +#+        */
+/*   By: outourmi <outourmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/12 18:19:24 by outourmi          #+#    #+#             */
-/*   Updated: 2025/07/15 18:39:21 by ynadime          ###   ########.fr       */
+/*   Updated: 2025/07/12 18:19:42 by outourmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,9 +78,8 @@ int	tokenize_input(char *line, t_data *data)
 	int		i;
 
 	i = 0;
-	data->line_pos = &i;
 	if (check_leading_pipe(line, &i))
-		return (g_exit_status = 1, 1);
+		return (1);
 	while (line[i])
 	{
 		if (ft_isspace(line[i]))

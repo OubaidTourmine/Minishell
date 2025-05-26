@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   shell_utils2.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ynadime <ynadime@student.42.fr>            +#+  +:+       +#+        */
+/*   By: outourmi <outourmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/14 14:24:52 by outourmi          #+#    #+#             */
-/*   Updated: 2025/07/15 10:47:16 by ynadime          ###   ########.fr       */
+/*   Updated: 2025/07/18 16:15:39 by outourmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,8 @@ char	**get_command(char *str, char **env)
 	char	**cmd;
 	char	**res;
 
+	if (has_spaces(str))
+		return (NULL);
 	str = ft_strtrim(str, " ");
 	cmd = ft_split(str, ' ');
 	res = cmd;
@@ -105,7 +107,7 @@ char	**get_command(char *str, char **env)
 		exit(1);
 	if (cmd[0] == NULL)
 		res = NULL;
-	else if (cmd[0][0] == '.' || cmd[0][0] == '/')
+	else if (is_path(cmd[0]))
 	{
 		if (access(cmd[0], F_OK | X_OK) != 0)
 			res = NULL;

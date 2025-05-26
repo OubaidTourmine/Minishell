@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtins6.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ynadime <ynadime@student.42.fr>            +#+  +:+       +#+        */
+/*   By: outourmi <outourmi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/12 21:17:42 by outourmi          #+#    #+#             */
-/*   Updated: 2025/07/15 15:07:39 by ynadime          ###   ########.fr       */
+/*   Updated: 2025/07/19 16:23:02 by outourmi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,13 @@
 void	setup_old_pwd(t_data *data)
 {
 	char	*tmp;
+	char	*cwd;
 
-	data->old_pwd = getcwd(NULL, 0);
+	cwd = getcwd(NULL, 0);
+	if (!cwd)
+		return ;
+	tracker(cwd, TRACKER_ADD);
+	data->old_pwd = cwd;
 	tmp = data->old_pwd;
 	data->old_pwd = ft_strjoin_ft("OLDPWD=", tmp);
 	ft_free(tmp);
@@ -89,9 +94,14 @@ int	cd_to_path(const char *path)
 void	update_pwd_env(t_data *data)
 {
 	char	*tmp;
+	char	*cwd;
 	int		i;
 
-	data->pwd = getcwd(NULL, 0);
+	cwd = getcwd(NULL, 0);
+	if (!cwd)
+		return ;
+	tracker(cwd, TRACKER_ADD);
+	data->pwd = cwd;
 	tmp = data->pwd;
 	data->pwd = ft_strjoin_ft("PWD=", tmp);
 	ft_free(tmp);
