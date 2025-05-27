@@ -42,7 +42,7 @@ int	is_valid_var_char(int c)
 
 int	is_expandable(int c)
 {
-	if (ft_isalpha(c) || c == '_' || c == '?')
+	if (ft_isalnum(c) || c == '_' || c == '?')
 		return (1);
 	return (0);
 }

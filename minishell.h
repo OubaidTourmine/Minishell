@@ -139,6 +139,7 @@ int							is_path(char *str);
 int							is_valid_var_char(int c);
 int							has_non_space_char(char *str);
 int							is_expandable(int c);
+int							ft_isdigit(int c);
 int							ft_isspace(char c);
 void						skip_spaces(char *line, int *i);
 

@@ -12,12 +12,18 @@
 
 #include "../minishell.h"
 
-char	*get_var_name(char *line, int *i)
+char *get_var_name(char *line, int *i)
 {
-	char	*var_name;
+	char *var_name;
 
 	var_name = ft_strdup("");
 	(*i)++;
+	if (ft_isdigit(line[*i]))
+	{
+		var_name = add_char_to_str(var_name, line[*i]);
+		(*i)++;
+		return var_name;
+	}
 	while (line[*i] && is_valid_var_char(line[*i]))
 	{
 		var_name = add_char_to_str(var_name, line[*i]);
@@ -26,9 +32,9 @@ char	*get_var_name(char *line, int *i)
 	return (var_name);
 }
 
-char	*expand_exit_status(int *i, t_data *data)
+char *expand_exit_status(int *i, t_data *data)
 {
-	char	*exit_status;
+	char *exit_status;
 
 	(void)data;
 	exit_status = ft_itoa(g_exit_status);
@@ -36,12 +42,12 @@ char	*expand_exit_status(int *i, t_data *data)
 	return (exit_status);
 }
 
-char	*get_env_value(t_data *data, char *var_name)
+char *get_env_value(t_data *data, char *var_name)
 {
-	int		index;
-	char	*env_entry;
-	char	*value;
-	int		name_len;
+	int index;
+	char *env_entry;
+	char *value;
+	int name_len;
 
 	index = ft_get_index_env(data->env, var_name);
 	if (index == -1)
@@ -55,10 +61,10 @@ char	*get_env_value(t_data *data, char *var_name)
 	return (ft_strdup(value));
 }
 
-char	*expand(char *line, int *i, t_data *data)
+char *expand(char *line, int *i, t_data *data)
 {
-	char	*var_name;
-	char	*var_value;
+	char *var_name;
+	char *var_value;
 
 	if (line[*i + 1] == '?')
 		return (expand_exit_status(i, data));

@@ -33,7 +33,7 @@ int	check_leading_pipe(char *line, int *i)
 	if (line[*i] == '|')
 	{
 		ft_putstr_fd("minishell: syntax error near unexpected token `|'\n", 2);
-		return (1);
+		return (g_exit_status = 2, 1);
 	}
 	return (0);
 }
@@ -56,20 +56,20 @@ int	check_syntax_errors(t_token *token)
 	if (token->is_amb_redirect)
 		return (0);
 	else if (token->has_syntax_error)
-		return (g_exit_status = 1, 1);
+		return (g_exit_status = 2, 1);
 	else if (!token->next)
 	{
 		if (is_redirection(token->type))
 		{
 			ft_putstr_fd("minishell: syntax error near ", 2);
 			ft_putstr_fd("unexpected token `newline'\n", 2);
-			return (g_exit_status = 1, 1);
+			return (g_exit_status = 2, 1);
 		}
 		else if (token->type == PIPE)
 		{
 			ft_putstr_fd("minishell: syntax error: ", 2);
 			ft_putstr_fd("unexpected end of file\n", 2);
-			return (g_exit_status = 1, 1);
+			return (g_exit_status = 2, 1);
 		}
 	}
 	return (0);
