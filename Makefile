@@ -32,8 +32,11 @@ SRC = minishell.c \
 	  parsing/parse_commands_utils.c \
 	  parsing/heredoc.c \
 	  parsing/heredoc_utils.c \
+	  utils/extract_var.c \
 	  utils/ft_putstr_fd.c \
 	  utils/has_non_space_char.c \
+	  utils/has_append_operator.c \
+	  utils/append_var.c \
 	  utils/add_char_to_str.c \
 	  utils/has_spaces.c \
 	  utils/ft_strcmp.c \

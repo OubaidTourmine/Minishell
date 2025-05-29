@@ -114,7 +114,9 @@ int	is_valid_identifier(char *str)
 	if (!str || (!isalpha(str[0]) && str[0] != '_'))
 		return (0);
 	while (str[i] && str[i] != '=')
-	{
+	{	
+		if(str[i] == '+' && str[i + 1] == '=')
+		return 1;
 		if (!isalnum(str[i]) && str[i] != '_')
 			return (0);
 		i++;

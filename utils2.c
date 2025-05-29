@@ -67,7 +67,7 @@ size_t	ft_strlen_exp(char *s)
 	{
 		return (0);
 	}
-	while (s[i] && s[i] != '=')
+	while (s[i] && (s[i] != '+' && s[i] != '='))
 	{
 		i++;
 	}

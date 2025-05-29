@@ -51,7 +51,6 @@ int	check_hd_exit_status(int status)
 {
 	if (WIFSIGNALED(status))
 	{
-		printf("dkhl hna");
 		g_exit_status = WTERMSIG(status) + 128;
 		return (1);
 	}

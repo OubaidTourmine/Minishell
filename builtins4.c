@@ -12,10 +12,10 @@
 
 #include "minishell.h"
 
-void	print_export_vars(t_data *data)
+void print_export_vars(t_data *data)
 {
-	int		i;
-	char	**formatted_export;
+	int i;
+	char **formatted_export;
 
 	formatted_export = get_formatted_export(data);
 	i = 0;
@@ -31,55 +31,58 @@ void	print_export_vars(t_data *data)
 	ft_free(formatted_export);
 }
 
-void	update_env_var_norm(t_data *data, char *arg, int existing_index)
+void update_env_var_norm(t_data *data, char *arg, int exi_ind)
 {
-	int	i;
-
-	if (existing_index != -1)
+	int i;
+	if (exi_ind != -1)
 	{
-		ft_free(data->export[existing_index]);
-		data->export[existing_index] = ft_strdup_ft(arg);
+		if (has_append_operator(arg))
+			data->export[exi_ind] = append_var(data->export[exi_ind], arg);
+		else
+			data->export[exi_ind] = ft_strdup_ft(arg);
 	}
 	else
 	{
 		i = 0;
 		while (data->export[i])
 			i++;
-		data->export[i] = ft_strdup_ft(arg);
+		data->export[i] = extract_var(arg);
 		data->export[i + 1] = NULL;
 	}
 }
 
-void	update_env_var(t_data *data, char *arg)
+void update_env_var(t_data *data, char *arg)
 {
-	int	i;
-	int	existing_index;
+	int i;
+	int existing_index;
 
 	existing_index = ft_get_index_env(data->env, arg);
 	if (existing_index != -1)
 	{
-		ft_free(data->env[existing_index]);
-		data->env[existing_index] = ft_strdup_ft(arg);
+		if (has_append_operator(arg))
+			data->env[existing_index] = append_var(data->env[existing_index], arg);
+		else
+			data->env[existing_index] = ft_strdup_ft(arg);
 	}
 	else
 	{
 		data->env = resize_env_array(data->env);
 		if (!data->env)
-			return ;
+			return;
 		i = 0;
 		while (data->env[i])
 			i++;
-		data->env[i] = ft_strdup_ft(arg);
+		data->env[i] = extract_var(arg);
 		data->env[i + 1] = NULL;
 	}
 	existing_index = ft_get_index_env(data->export, arg);
 	update_env_var_norm(data, arg, existing_index);
 }
 
-void	add_env_var_no_value(t_data *data, char *arg)
+void add_env_var_no_value(t_data *data, char *arg)
 {
-	int	i;
-	int	existing_index;
+	int i;
+	int existing_index;
 
 	existing_index = ft_get_index_env(data->export, arg);
 	if (existing_index == -1)
@@ -92,9 +95,9 @@ void	add_env_var_no_value(t_data *data, char *arg)
 	}
 }
 
-int	process_export_args(t_data *data)
+int process_export_args(t_data *data)
 {
-	int	j;
+	int j;
 
 	j = 1;
 	while (data->commands->args[j])
@@ -104,7 +107,7 @@ int	process_export_args(t_data *data)
 			print_export_error(data->commands->args[j]);
 			g_exit_status = 1;
 			j++;
-			continue ;
+			continue;
 		}
 		if (strchr(data->commands->args[j], '=') != NULL)
 		{

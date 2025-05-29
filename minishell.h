@@ -138,6 +138,9 @@ size_t						ft_strlcpy(char *dst, const char *src,
 int							is_path(char *str);
 int							is_valid_var_char(int c);
 int							has_non_space_char(char *str);
+char 						*extract_var(char *var);
+char 						*append_var(char *existing_var, char *new_var);
+int 						has_append_operator(char *var);
 int							is_expandable(int c);
 int							ft_isdigit(int c);
 int							ft_isspace(char c);
