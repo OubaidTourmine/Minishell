@@ -44,6 +44,7 @@ void update_env_var_norm(t_data *data, char *arg, int exi_ind)
 	else
 	{
 		i = 0;
+		data->export = resize_env_array(data->export);
 		while (data->export[i])
 			i++;
 		data->export[i] = extract_var(arg);
@@ -88,6 +89,7 @@ void add_env_var_no_value(t_data *data, char *arg)
 	if (existing_index == -1)
 	{
 		i = 0;
+		data->export = resize_env_array(data->export);
 		while (data->export[i])
 			i++;
 		data->export[i] = ft_strdup_ft(arg);

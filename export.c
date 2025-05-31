@@ -86,7 +86,7 @@ int	get_export(t_data *data)
 	i = 0;
 	while (data->env[i])
 		i++;
-	data->export = ft_malloc(sizeof(char *) * (i + 1000));
+	data->export = ft_malloc(sizeof(char *) * (i + 1));
 	i = 0;
 	while (data->env[i])
 	{
