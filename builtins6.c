@@ -91,22 +91,29 @@ int	cd_to_path(const char *path)
 	return (0);
 }
 
-void	update_pwd_env(t_data *data)
+void    update_pwd_env(t_data *data)
 {
-	char	*tmp;
-	char	*cwd;
-	int		i;
+    char    *tmp;
+    char    *cwd;
+    int        i;
 
-	cwd = getcwd(NULL, 0);
-	if (!cwd)
-		return ;
-	tracker(cwd, TRACKER_ADD);
-	data->pwd = cwd;
-	tmp = data->pwd;
-	data->pwd = ft_strjoin_ft("PWD=", tmp);
-	ft_free(tmp);
-	i = ft_get_index_env(data->env, "OLDPWD=");
-	data->env[i] = data->old_pwd;
-	i = ft_get_index_env(data->env, "PWD=");
-	data->env[i] = data->pwd;
+    cwd = getcwd(NULL, 0);
+    if (!cwd)
+        return ;
+    tracker(cwd, TRACKER_ADD);
+    data->pwd = cwd;
+    tmp = data->pwd;
+    data->pwd = ft_strjoin_ft("PWD=", tmp);
+    ft_free(tmp);
+    i = ft_get_index_env(data->env, "OLDPWD=");
+    if (i != -1)
+        data->env[i] = data->old_pwd;
+    else
+        update_env_var(data, data->old_pwd);
+    i = ft_get_index_env(data->env, "PWD=");
+    if (i != -1)
+        data->env[i] = data->pwd;
+    else
+        update_env_var(data, data->pwd);
 }
+

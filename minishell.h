@@ -258,6 +258,7 @@ void						ft_swap(char **export, int i, int j);
 size_t						get_how_many_pipe(t_data *data);
 void						get_in_ou_fd(t_data *data, t_data_pipe *p_data);
 void						pipe_data_init(t_data_pipe *p_data, t_data *data);
+void						update_env_var(t_data *data, char *arg);
 int							routine_proccess(t_data *data, t_data_pipe *p_data);
 char						**get_command(char *str, char **env);
 char						**join_cmd_with_path(char **cmd, char **env);
